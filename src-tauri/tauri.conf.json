@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "ffmpeg-gui",
+  "productName": "MediaKit",
   "version": "0.1.0",
   "identifier": "com.planeswalker.ffmpeg-gui",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "ffmpeg-gui",
+        "title": "MediaKit",
         "width": 800,
         "height": 600
       }

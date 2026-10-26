@@ -4,8 +4,6 @@ function App() {
   return (
     <Stack>
       <Title>ffmpeg GUI</Title>
-
-      <span>ffmpeg GUI</span>
     </Stack>
   );
 }
