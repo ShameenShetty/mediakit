@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
 import Dashboard from './modules/dashboard/Dashboard';
+import ReEncodeMp4 from './modules/audio/ReEncodeMp4';
 
 function App() {
   return (
@@ -8,8 +9,8 @@ function App() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route path='/' element={<Dashboard />} />
-          <Route>Second page</Route>
-          <Route>Third page</Route>
+          <Route path='/re-encode-mp4' element={<ReEncodeMp4 />} />
+          <Route path='' />
         </Route>
 
       </Routes>
