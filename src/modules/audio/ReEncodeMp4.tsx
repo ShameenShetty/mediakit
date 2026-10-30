@@ -1,4 +1,4 @@
-import { Button, Select, Stack, Title } from '@mantine/core';
+import { Button, Progress, Select, Stack, Title } from '@mantine/core';
 import { selectVideoFile } from '../../utils/selectVideoFile';
 import { notifications } from '@mantine/notifications';
 import { Command } from '@tauri-apps/plugin-shell'
@@ -16,12 +16,13 @@ const modes = [
 type ModeValue = typeof modes[number]['value'];
 
 export default function ReEncodeMp4() {
-
     const [mode, setMode] = useState<ModeValue>('balanced');
+    const [progress, setProgress] = useState(0);
 
     async function reEncodeVideo() {
         // TODO later we can add a way to select a directory and re-encode all the videos in that dir
         // maybe we can filter the videos as well like only mp4 files.
+        setProgress(0);
         const inputPath = await selectVideoFile();
 
         if (!inputPath) {
@@ -33,6 +34,8 @@ export default function ReEncodeMp4() {
             });
             return;
         }
+
+        const duration = await getDuration(inputPath);
 
         // Define the mode parameters
         // TODO use a slider for CRF that goes from 0 to 100
@@ -78,13 +81,22 @@ export default function ReEncodeMp4() {
 
         // Optional: Log output / handle events if spawning
         command.stdout.on('data', (line) => console.log('stdout - ', line));
-        command.stderr.on('data', (line) => console.log('stderr - ', line));
+
+        command.stderr.on('data', (line) => {
+            console.log('stderr - ', line);
+            if (line.includes('time=')) {
+                const p = extractProgress(duration, line) || 0;
+                setProgress(p);
+                console.log('The progress is ', p)
+            }
+        });
 
         command.on('close', (data) => {
             console.log('Close - ', data);
 
             // Code 0 means success
             if (data.code === 0) {
+                setProgress(100);
                 notifications.show({
                     title: 'Success',
                     message: 'Video re-encoded successfully!',
@@ -106,12 +118,11 @@ export default function ReEncodeMp4() {
         <Stack p='sm'>
             <Title>ReEncode MP4</Title>
             <Button w={150} onClick={reEncodeVideo}>Choose mp4 file</Button>
-
-            <Button w={150} onClick={async () => {
-                const duration = await getDuration('');
-                console.log('Duration returned from func - ', duration);
-            }}>Get Duration</Button>
-            <Button w={150} onClick={() => extractProgress(4825, '')}>Extract Progress</Button>
+            {progress === 100 ? (
+                <Progress h={16} value={progress} striped color='green' />
+            ) : (
+                <Progress h={16} value={progress} striped animated color='blue' />
+            )}
 
             <Select
                 w={200} label='Choose mode'
