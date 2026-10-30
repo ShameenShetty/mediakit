@@ -1,7 +1,8 @@
 import { Command } from '@tauri-apps/plugin-shell'
 
-export const getDuration = (inputPath: string) => {
+export const getDuration = async (inputPath: string): Promise<number> => {
     console.log('Getting duration from video')
+
     const command = Command.sidecar('binaries/ffprobe', [
         '-v', 'error',
         '-show_entries',
@@ -11,16 +12,14 @@ export const getDuration = (inputPath: string) => {
         inputPath
     ]);
 
-    let duration = 0;
-    command.stdout.on('data', (line) => {
-        duration = Number(line || -1);
-        console.log(`Duration of video is ${duration}s`)
-    });
+    const output = await command.execute();
 
-    command.spawn();
-
-    command.on('close', (line) => {
-        if (line.code === 0) return duration;
-        else return -1
-    })
+    if (output.code === 0) {
+        const duration = Number(output.stdout.trim());
+        console.log(`Duration of video is ${duration}s`);
+        return isNaN(duration) ? -1 : duration;
+    } else {
+        console.error('ffprobe failed with exit code:', output.code);
+        return -1;
+    }
 }

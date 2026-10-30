@@ -24,6 +24,16 @@
           "args": true
         }
       ]
+    },
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "binaries/ffprobe",
+          "sidecar": true,
+          "args": true
+        }
+      ]
     }
   ]
 }

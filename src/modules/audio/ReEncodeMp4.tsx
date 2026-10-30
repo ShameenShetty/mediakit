@@ -5,6 +5,7 @@ import { Command } from '@tauri-apps/plugin-shell'
 import { dirname, basename, extname, join } from '@tauri-apps/api/path';
 import { getDuration } from '../../utils/getDuration';
 import { useState } from 'react';
+import { extractProgress } from '../../utils/extractProgress';
 
 const modes = [
     { label: 'Lower Quality (fast)', value: 'lower' },
@@ -106,7 +107,11 @@ export default function ReEncodeMp4() {
             <Title>ReEncode MP4</Title>
             <Button w={150} onClick={reEncodeVideo}>Choose mp4 file</Button>
 
-            <Button w={150} onClick={() => getDuration('')}>Get Duration</Button>
+            <Button w={150} onClick={async () => {
+                const duration = await getDuration('');
+                console.log('Duration returned from func - ', duration);
+            }}>Get Duration</Button>
+            <Button w={150} onClick={() => extractProgress(4825, '')}>Extract Progress</Button>
 
             <Select
                 w={200} label='Choose mode'
