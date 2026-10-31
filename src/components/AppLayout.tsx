@@ -3,7 +3,7 @@ import { AppShell, NavLink, Text, Stack, Box } from '@mantine/core';
 import {
     IconHome,
     IconArrowsExchange,
-    IconMinimize,
+    IconFold,
     IconScissors,
     IconVolume,
     IconPhoto,
@@ -76,7 +76,7 @@ export default function AppLayout() {
                         component={Link}
                         to="/compress"
                         active={location.pathname === '/compress'}
-                        leftSection={<IconMinimize size={22} />}
+                        leftSection={<IconFold size={22} />}
                         label={<NavLabel text="Compress" />}
                         title="Compress"
                     />

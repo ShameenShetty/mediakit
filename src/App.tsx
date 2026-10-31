@@ -1,6 +1,6 @@
 import { HashRouter, Route, Routes } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
-import ReEncodeMp4 from './modules/audio/ReEncodeMp4';
+import ReEncodeMp4 from './modules/core/Convert';
 import Dashboard from './modules/dashboard/Dashboard';
 
 function App() {
