@@ -11,8 +11,7 @@ export const extractProgress = (duration: number, line: string): number | undefi
         const elapsedSeconds = (hour * 3600) + (min * 60) + sec;
         const progress = (elapsedSeconds / duration) * 100;
 
-        // Cap it at 100% just in case FFmpeg overshoots slightly at the very end
-        return Math.min(progress, 100);
+        return progress
     } else {
         console.log('No matches found or less than 4 matches');
         return undefined;

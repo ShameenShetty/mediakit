@@ -2,8 +2,8 @@ import { open } from '@tauri-apps/plugin-dialog'
 
 export const selectVideoFile = async (): Promise<string | null> => {
     const selectedPath = await open({
-        multiple: false,      // Single file mode
-        directory: false,     // Ensure it selects files, not folders
+        multiple: false,
+        directory: false,
         filters: [
             {
                 name: 'Video Files',

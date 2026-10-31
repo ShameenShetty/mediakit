@@ -1,20 +1,20 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { HashRouter, Route, Routes } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
-import Dashboard from './modules/dashboard/Dashboard';
 import ReEncodeMp4 from './modules/audio/ReEncodeMp4';
+import Dashboard from './modules/dashboard/Dashboard';
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route element={<AppLayout />}>
           <Route path='/' element={<Dashboard />} />
-          <Route path='/re-encode-mp4' element={<ReEncodeMp4 />} />
+          <Route path='/convert' element={<ReEncodeMp4 />} />
           <Route path='' />
         </Route>
 
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
