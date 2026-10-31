@@ -1,15 +1,13 @@
 import { HashRouter, Route, Routes } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
-import ReEncodeMp4 from './modules/core/Convert';
-import Dashboard from './modules/dashboard/Dashboard';
+import Home from './modules/dashboard/Home';
 
 function App() {
   return (
     <HashRouter>
       <Routes>
         <Route element={<AppLayout />}>
-          <Route path='/' element={<Dashboard />} />
-          <Route path='/convert' element={<ReEncodeMp4 />} />
+          <Route path='/' element={<Home />} />
           <Route path='' />
         </Route>
 

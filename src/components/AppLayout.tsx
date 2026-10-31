@@ -1,15 +1,13 @@
-import { useState } from 'react';
-import { AppShell, NavLink, Text, Stack, Box } from '@mantine/core';
+import { AppShell, Box, NavLink, Stack, Text } from '@mantine/core';
 import {
     IconHome,
-    IconArrowsExchange,
-    IconFold,
-    IconScissors,
-    IconVolume,
     IconPhoto,
-    IconSparkles,
+    IconScissors,
     IconSettings,
+    IconSparkles,
+    IconVolume
 } from '@tabler/icons-react';
+import { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
 export default function AppLayout() {
@@ -60,25 +58,6 @@ export default function AppLayout() {
                         leftSection={<IconHome size={22} />}
                         label={<NavLabel text="Home" />}
                         title="Home"
-                    />
-
-                    {/* Section: Core */}
-                    <SectionHeader title="Core" />
-                    <NavLink
-                        component={Link}
-                        to="/convert"
-                        active={location.pathname === '/convert'}
-                        leftSection={<IconArrowsExchange size={22} />}
-                        label={<NavLabel text="Convert" />}
-                        title="Convert"
-                    />
-                    <NavLink
-                        component={Link}
-                        to="/compress"
-                        active={location.pathname === '/compress'}
-                        leftSection={<IconFold size={22} />}
-                        label={<NavLabel text="Compress" />}
-                        title="Compress"
                     />
 
                     {/* Section: Edit & Audio */}
