@@ -104,6 +104,10 @@ export default function Home() {
 
             let args: string[] = ['-i', inputPath];
 
+            if (isAudioFile) {
+                args.push('-vn');
+            }
+
             if (operation === 'compress') {
                 // Compression preset mappings
                 let targetCrf = '26';
@@ -123,9 +127,19 @@ export default function Home() {
                     args.push('-c:v', 'libx264', '-preset', preset, '-crf', crf.toString(), '-c:a', 'aac');
                 }
             } else {
-                // General Convert
                 if (isAudioFile) {
-                    args.push('-c:a', outputFormat === 'mp3' ? 'libmp3lame' : 'aac');
+                    if (outputFormat === 'mp3') {
+                        args.push('-c:a', 'libmp3lame', '-b:a', '192k');
+                    } else if (outputFormat === 'm4a') {
+                        args.push('-c:a', 'aac', '-b:a', '192k');
+                    } else if (outputFormat === 'opus') {
+                        args.push('-c:a', 'libopus', '-b:a', '128k');
+                    } else if (outputFormat === 'wav') {
+                        // Force uncompressed standard PCM 16-bit stereo for clean WAV playback
+                        args.push('-c:a', 'pcm_s16le');
+                    } else {
+                        args.push('-c:a', 'aac');
+                    }
                 } else {
                     args.push('-c:v', 'libx264', '-preset', 'medium', '-crf', '23', '-c:a', 'aac');
                 }
@@ -207,7 +221,9 @@ export default function Home() {
                         label="Output Format"
                         w={180}
                         disabled={operation === 'reencode'}
-                        data={isAudioFile ? audioFormats : videoFormats}
+                        data={isAudioFile ?
+                            audioFormats.filter(f => f !== fileExt) :
+                            videoFormats.filter(f => f !== fileExt)}
                         value={outputFormat}
                         onChange={(val) => val && setOutputFormat(val)}
                     />
