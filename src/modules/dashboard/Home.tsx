@@ -20,28 +20,7 @@ import { Command } from '@tauri-apps/plugin-shell';
 import { notifications } from '@mantine/notifications';
 import { getDuration } from '../../utils/getDuration';
 import { extractProgress } from '../../utils/extractProgress';
-
-const operations = [
-    { label: 'Convert', value: 'convert' },
-    { label: 'Re-Encode', value: 'reencode' },
-    { label: 'Compress', value: 'compress' },
-];
-
-const compressionPresets = [
-    { label: 'Low Compression', value: 'low' },
-    { label: 'Balanced', value: 'balanced' },
-    { label: 'High Compression', value: 'high' },
-];
-
-const encodingPresets = [
-    { label: 'Very Fast', value: 'veryfast' },
-    { label: 'Fast', value: 'fast' },
-    { label: 'Medium', value: 'medium' },
-    { label: 'Slow', value: 'slow' },
-];
-
-const videoFormats = ['mp4', 'mkv', 'mov', 'webm'];
-const audioFormats = ['mp3', 'm4a', 'wav', 'opus'];
+import { audioFormats, operations, compressionPresets, videoFormats, encodingPresets } from '../../constants/mediaOptions';
 
 export default function Home() {
     const [inputPath, setInputPath] = useState<string | null>(null);
@@ -92,6 +71,7 @@ export default function Home() {
             notifications.show({ title: 'Error', message: 'Please select an input file first.', color: 'red' });
             return;
         }
+        console.log('Running operation:', { inputPath, operation, outputFormat, compressionMode, preset, crf });
 
         setIsProcessing(true);
         setProgress(0);
@@ -141,15 +121,42 @@ export default function Home() {
                         args.push('-c:a', 'aac');
                     }
                 } else {
-                    args.push('-c:v', 'libx264', '-preset', 'medium', '-crf', '23', '-c:a', 'aac');
+                    // Video conversion branch
+                    if (outputFormat === 'webm') {
+                        // Map H.264 presets to VP9 -cpu-used values (0 to 5)
+                        let cpuUsed = '2'; // default / medium equivalent
+                        if (preset === 'veryfast') cpuUsed = '4';
+                        else if (preset === 'fast') cpuUsed = '3';
+                        else if (preset === 'medium') cpuUsed = '2';
+                        else if (preset === 'slow') cpuUsed = '0'; // slow takes maximum CPU for best compression
+
+                        args.push(
+                            '-c:v', 'libvpx-vp9',
+                            '-crf', crf.toString(),
+                            '-b:v', '0',               // Required for constant quality mode in VP9
+                            '-cpu-used', cpuUsed,      // Controls encoding speed vs quality
+                            '-row-mt', '1',            // Enables multi-threading for faster processing
+                            '-c:a', 'libopus'
+                        );
+                    } else {
+                        // Standard H.264/AAC for MP4, MKV, MOV
+                        args.push(
+                            '-c:v', 'libx264',
+                            '-preset', preset,
+                            '-crf', crf.toString(),
+                            '-c:a', 'aac'
+                        );
+                    }
                 }
             }
 
             args.push(outputPath);
+            console.log('Executing FFmpeg with args:', args);
 
             const command = Command.sidecar('binaries/ffmpeg', args);
 
             command.stderr.on('data', (line) => {
+                console.log('FFmpeg stderr:', line);
                 if (line.includes('time=')) {
                     const p = extractProgress(duration, line) || 0;
                     setProgress(p);
