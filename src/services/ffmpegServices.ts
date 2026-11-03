@@ -18,6 +18,9 @@ export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
         args.push('-vn');
     }
 
+    // --------------------------------------------------------
+    // Compression branch
+    // --------------------------------------------------------
     if (operation === 'compress') {
         // Compression preset mappings
         let targetCrf = '26';
@@ -49,13 +52,28 @@ export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
                 args.push('-c:v', 'libx264', '-preset', targetPreset, '-crf', targetCrf, '-c:a', 'aac', '-b:a', '128k');
             }
         }
-    } else if (operation === 'reencode') {
+    }
+
+    // --------------------------------------------------------
+    // Reencode branch
+    // --------------------------------------------------------
+    
+    // TODO reencoding mp3 fails immediately with error code 234 probably because the 2nd stream is the thumbnail
+    // which ffmpeg cannot reencode. We need to either ignore the thumbnail stream or remove it before reencoding
+    else if (operation === 'reencode') {
         if (isAudioFile) {
             args.push('-c:a', 'aac', '-b:a', '192k');
         } else {
             args.push('-c:v', 'libx264', '-preset', preset, '-crf', crf.toString(), '-c:a', 'aac');
         }
-    } else {
+    }
+
+    // --------------------------------------------------------
+    // Conversion branch
+    // --------------------------------------------------------
+    else {
+        // Related to the above TODO, we need to handle the thumbnail stream properly for conversion as well
+        // Because even if we are successfully converting an audio file the output file has no thumbnail
         if (isAudioFile) {
             if (outputFormat === 'mp3') {
                 args.push('-c:a', 'libmp3lame', '-b:a', '192k');

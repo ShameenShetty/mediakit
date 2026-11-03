@@ -25,9 +25,6 @@ import { calculateEta } from '../../utils/calculateEta';
 import { extractSpeed } from '../../utils/extractSpeed';
 import { buildFfmpegArgs } from '../../services/ffmpegServices';
 
-// TODO IMPORTANT
-// If a file already exists with the same name, we should prompt the user to either overwrite or rename the output file. Currently, it will do nothing and just fail silently, which is not a good user experience.
-
 export default function Home() {
     const [inputPath, setInputPath] = useState<string | null>(null);
     const [fileName, setFileName] = useState<string>('');
@@ -54,6 +51,10 @@ export default function Home() {
             directory: false,
         });
 
+        // TODO IMPORTANT
+        // Based on the operation if there is an already existing file, e.g. "input_webm_reencoded.webm"
+        // then we should prompt the user whether they want to overwrite that file or create a new one.
+        // Currently, it will do nothing and just fail silently, which is not a good user experience.
         if (selected && typeof selected === 'string') {
             setInputPath(selected);
             const name = await basename(selected);
