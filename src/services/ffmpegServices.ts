@@ -57,7 +57,7 @@ export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
     // --------------------------------------------------------
     // Reencode branch
     // --------------------------------------------------------
-    
+
     // TODO reencoding mp3 fails immediately with error code 234 probably because the 2nd stream is the thumbnail
     // which ffmpeg cannot reencode. We need to either ignore the thumbnail stream or remove it before reencoding
     else if (operation === 'reencode') {
@@ -71,7 +71,7 @@ export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
     // --------------------------------------------------------
     // Conversion branch
     // --------------------------------------------------------
-    else {
+    else if (operation === 'convert') {
         // Related to the above TODO, we need to handle the thumbnail stream properly for conversion as well
         // Because even if we are successfully converting an audio file the output file has no thumbnail
         if (isAudioFile) {
@@ -115,6 +115,8 @@ export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
                 );
             }
         }
+    } else {
+        throw new Error(`Unsupported operation: ${operation}`);
     }
 
     args.push(outputPath);
