@@ -11,7 +11,8 @@ import {
     Collapse,
     Slider,
     Text,
-    Divider
+    Divider,
+    Center
 } from '@mantine/core';
 import { IconArrowRight, IconSettings } from '@tabler/icons-react';
 import { open } from '@tauri-apps/plugin-dialog';
@@ -25,7 +26,13 @@ import { calculateEta } from '../../utils/calculateEta';
 import { extractSpeed } from '../../utils/extractSpeed';
 import { buildFfmpegArgs } from '../../services/ffmpegServices';
 
-export default function Home() {
+// TODO
+// If I am encoding something, the switch over to another page, when I come back to the 
+// original page, the home screen is reset even though the process is still running in the background.
+// Maybe I can use Zustand to store the state of the process, or continue listening to the process
+// in the background
+
+export default function HomePage() {
     const [inputPath, setInputPath] = useState<string | null>(null);
     const [fileName, setFileName] = useState<string>('');
     const [fileExt, setFileExt] = useState<string>('');
@@ -149,7 +156,7 @@ export default function Home() {
 
     return (
         <Stack p="lg" gap="md">
-            <Title order={2}>MediaKit Workspace</Title>
+            <Center pb={10}><Title order={2}>MediaKit Workspace</Title></Center>
 
             {/* 3-Step Pipeline Flow */}
             <Group align="flex-end" gap="md">

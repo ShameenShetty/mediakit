@@ -1,14 +1,15 @@
 import { HashRouter, Route, Routes } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
-import Home from './modules/dashboard/Home';
+import HomePage from './modules/dashboard/HomePage';
+import SettingsPage from './modules/settings/SettingsPage';
 
 function App() {
   return (
     <HashRouter>
       <Routes>
         <Route element={<AppLayout />}>
-          <Route path='/' element={<Home />} />
-          <Route path='' />
+          <Route path='/' element={<HomePage />} />
+          <Route path='/settings' element={<SettingsPage />} />
         </Route>
 
       </Routes>
