@@ -23,6 +23,7 @@ import { extractProgress } from '../../utils/extractProgress';
 import { audioFormats, operations, compressionPresets, videoFormats, encodingPresets } from '../../constants/mediaOptions';
 import { calculateEta } from '../../utils/calculateEta';
 import { extractSpeed } from '../../utils/extractSpeed';
+import { buildFfmpegArgs } from '../../services/ffmpegServices';
 
 // TODO IMPORTANT
 // If a file already exists with the same name, we should prompt the user to either overwrite or rename the output file. Currently, it will do nothing and just fail silently, which is not a good user experience.
@@ -78,7 +79,6 @@ export default function Home() {
             notifications.show({ title: 'Error', message: 'Please select an input file first.', color: 'red' });
             return;
         }
-        console.log('Running operation:', { inputPath, operation, outputFormat, compressionMode, preset, crf });
 
         setIsProcessing(true);
         setProgress(0);
@@ -94,94 +94,18 @@ export default function Home() {
             operation === 'reencode' ? endName = 'reencoded' : endName = operation + 'ed';
             const outputPath = await join(parentDir, `${baseName}_${endName}.${outputFormat}`);
 
-            let args: string[] = ['-i', inputPath];
+            let args: string[] = buildFfmpegArgs({
+                inputPath,
+                outputPath,
+                operation,
+                outputFormat,
+                isAudioFile,
+                compressionMode,
+                preset,
+                crf
+            });
 
-            if (isAudioFile) {
-                args.push('-vn');
-            }
-
-            if (operation === 'compress') {
-                // Compression preset mappings
-                let targetCrf = '26';
-                let targetPreset = 'fast';
-                if (compressionMode === 'low') { targetCrf = '21'; targetPreset = 'medium'; }
-                if (compressionMode === 'high') { targetCrf = '30'; targetPreset = 'veryfast'; }
-
-                if (isAudioFile) {
-                    args.push('-c:a', 'libmp3lame', '-b:a', compressionMode === 'high' ? '96k' : '128k');
-                } else {
-                    // Video compression branch with WebM/VP9 support
-                    if (outputFormat === 'webm') {
-                        let cpuUsed = '3'; // default / fast equivalent for compression
-                        if (targetPreset === 'veryfast') cpuUsed = '4';
-                        else if (targetPreset === 'fast') cpuUsed = '3';
-                        else if (targetPreset === 'medium') cpuUsed = '2';
-                        else if (targetPreset === 'slow') cpuUsed = '0';
-
-                        args.push(
-                            '-c:v', 'libvpx-vp9',
-                            '-crf', targetCrf,
-                            '-b:v', '0',
-                            '-cpu-used', cpuUsed,
-                            '-row-mt', '1',
-                            '-c:a', 'libopus',
-                            '-b:a', '128k'
-                        );
-                    } else {
-                        args.push('-c:v', 'libx264', '-preset', targetPreset, '-crf', targetCrf, '-c:a', 'aac', '-b:a', '128k');
-                    }
-                }
-            } else if (operation === 'reencode') {
-                if (isAudioFile) {
-                    args.push('-c:a', 'aac', '-b:a', '192k');
-                } else {
-                    args.push('-c:v', 'libx264', '-preset', preset, '-crf', crf.toString(), '-c:a', 'aac');
-                }
-            } else {
-                if (isAudioFile) {
-                    if (outputFormat === 'mp3') {
-                        args.push('-c:a', 'libmp3lame', '-b:a', '192k');
-                    } else if (outputFormat === 'm4a') {
-                        args.push('-c:a', 'aac', '-b:a', '192k');
-                    } else if (outputFormat === 'opus') {
-                        args.push('-c:a', 'libopus', '-b:a', '128k');
-                    } else if (outputFormat === 'wav') {
-                        // Force uncompressed standard PCM 16-bit stereo for clean WAV playback
-                        args.push('-c:a', 'pcm_s16le');
-                    } else {
-                        args.push('-c:a', 'aac');
-                    }
-                } else {
-                    // Video conversion branch
-                    if (outputFormat === 'webm') {
-                        // Map H.264 presets to VP9 -cpu-used values (0 to 5)
-                        let cpuUsed = '2'; // default / medium equivalent
-                        if (preset === 'veryfast') cpuUsed = '4';
-                        else if (preset === 'fast') cpuUsed = '3';
-                        else if (preset === 'medium') cpuUsed = '2';
-                        else if (preset === 'slow') cpuUsed = '0'; // slow takes maximum CPU for best compression
-
-                        args.push(
-                            '-c:v', 'libvpx-vp9',
-                            '-crf', crf.toString(),
-                            '-b:v', '0',               // Required for constant quality mode in VP9
-                            '-cpu-used', cpuUsed,      // Controls encoding speed vs quality
-                            '-row-mt', '1',            // Enables multi-threading for faster processing
-                            '-c:a', 'libopus'
-                        );
-                    } else {
-                        // Standard H.264/AAC for MP4, MKV, MOV
-                        args.push(
-                            '-c:v', 'libx264',
-                            '-preset', preset,
-                            '-crf', crf.toString(),
-                            '-c:a', 'aac'
-                        );
-                    }
-                }
-            }
-
-            args.push(outputPath);
+            console.log('Running operation:', { inputPath, operation, outputFormat, compressionMode, preset, crf });
             console.log('Executing FFmpeg with args:', args);
 
             const command = Command.sidecar('binaries/ffmpeg', args);
