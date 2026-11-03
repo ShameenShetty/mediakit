@@ -21,6 +21,11 @@ import { notifications } from '@mantine/notifications';
 import { getDuration } from '../../utils/getDuration';
 import { extractProgress } from '../../utils/extractProgress';
 import { audioFormats, operations, compressionPresets, videoFormats, encodingPresets } from '../../constants/mediaOptions';
+import { calculateEta } from '../../utils/calculateEta';
+import { extractSpeed } from '../../utils/extractSpeed';
+
+// TODO IMPORTANT
+// If a file already exists with the same name, we should prompt the user to either overwrite or rename the output file. Currently, it will do nothing and just fail silently, which is not a good user experience.
 
 export default function Home() {
     const [inputPath, setInputPath] = useState<string | null>(null);
@@ -38,6 +43,8 @@ export default function Home() {
     const [crf, setCrf] = useState<number>(23);
 
     const [progress, setProgress] = useState<number>(0);
+    const [speed, setSpeed] = useState<number>(0);
+    const [eta, setEta] = useState<string>('N/A');
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
     async function handleSelectFile() {
@@ -75,6 +82,8 @@ export default function Home() {
 
         setIsProcessing(true);
         setProgress(0);
+        setSpeed(0);
+        setEta('Calculating...');
 
         try {
             const duration = await getDuration(inputPath);
@@ -160,6 +169,15 @@ export default function Home() {
                 if (line.includes('time=')) {
                     const p = extractProgress(duration, line) || 0;
                     setProgress(p);
+
+                    if (line.includes('speed=')) {
+                        const extractedSpeed = extractSpeed(line) || 0;
+                        setSpeed(extractedSpeed);
+
+                        const calculatedEta = calculateEta(p, extractedSpeed, duration);
+                        setEta(calculatedEta);
+                        console.log('extractedSpeed - ', extractedSpeed, ' ETA: ', calculatedEta)
+                    }
                 }
             });
 
@@ -167,6 +185,8 @@ export default function Home() {
                 setIsProcessing(false);
                 if (data.code === 0) {
                     setProgress(100);
+                    setSpeed(0);
+                    setEta('0h 0m 0s');
                     notifications.show({ title: 'Success', message: 'Operation completed successfully!', color: 'green' });
                 } else {
                     notifications.show({ title: 'Error', message: `Process failed with code ${data.code}`, color: 'red' });
@@ -284,6 +304,9 @@ export default function Home() {
                 >
                     {isProcessing ? 'Processing...' : 'Run Operation'}
                 </Button>
+                <Text size="sm" c={progress === 100 ? 'blue' : 'gray'}>
+                    {progress === 100 ? 'Completed' : `Progress: ${progress.toFixed(2)}% ETA: ${eta}`}
+                </Text>
             </Group>
 
             {progress > 0 && (
