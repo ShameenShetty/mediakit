@@ -43,7 +43,7 @@ export default function Home() {
     const [crf, setCrf] = useState<number>(23);
 
     const [progress, setProgress] = useState<number>(0);
-    const [speed, setSpeed] = useState<number>(0);
+    const [_, setSpeed] = useState<number>(0);
     const [eta, setEta] = useState<string>('N/A');
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
@@ -89,7 +89,10 @@ export default function Home() {
             const duration = await getDuration(inputPath);
             const parentDir = await dirname(inputPath);
             const baseName = fileName.slice(0, -(fileExt.length + 1));
-            const outputPath = await join(parentDir, `${baseName}_mediaKit.${outputFormat}`);
+
+            let endName = '';
+            operation === 'reencode' ? endName = 'reencoded' : endName = operation + 'ed';
+            const outputPath = await join(parentDir, `${baseName}_${endName}.${outputFormat}`);
 
             let args: string[] = ['-i', inputPath];
 
@@ -107,7 +110,26 @@ export default function Home() {
                 if (isAudioFile) {
                     args.push('-c:a', 'libmp3lame', '-b:a', compressionMode === 'high' ? '96k' : '128k');
                 } else {
-                    args.push('-c:v', 'libx264', '-preset', targetPreset, '-crf', targetCrf, '-c:a', 'aac', '-b:a', '128k');
+                    // Video compression branch with WebM/VP9 support
+                    if (outputFormat === 'webm') {
+                        let cpuUsed = '3'; // default / fast equivalent for compression
+                        if (targetPreset === 'veryfast') cpuUsed = '4';
+                        else if (targetPreset === 'fast') cpuUsed = '3';
+                        else if (targetPreset === 'medium') cpuUsed = '2';
+                        else if (targetPreset === 'slow') cpuUsed = '0';
+
+                        args.push(
+                            '-c:v', 'libvpx-vp9',
+                            '-crf', targetCrf,
+                            '-b:v', '0',
+                            '-cpu-used', cpuUsed,
+                            '-row-mt', '1',
+                            '-c:a', 'libopus',
+                            '-b:a', '128k'
+                        );
+                    } else {
+                        args.push('-c:v', 'libx264', '-preset', targetPreset, '-crf', targetCrf, '-c:a', 'aac', '-b:a', '128k');
+                    }
                 }
             } else if (operation === 'reencode') {
                 if (isAudioFile) {
