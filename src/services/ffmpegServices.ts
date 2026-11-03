@@ -1,4 +1,3 @@
-// src/utils/buildFfmpegArgs.ts
 export interface BuildArgsOptions {
     inputPath: string;
     outputPath: string;

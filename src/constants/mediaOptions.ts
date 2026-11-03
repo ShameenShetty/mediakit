@@ -17,5 +17,11 @@ export const encodingPresets = [
     { label: 'Slow', value: 'slow' },
 ];
 
+export const scaleOptions = [
+    { label: '1080p Full HD', value: '1920:1080' },
+    { label: '1440p QHD', value: '2560:1440' },
+    { label: '4K UHD', value: '3840:2160' },
+];
+
 export const videoFormats = ['mp4', 'mkv', 'mov', 'webm'];
 export const audioFormats = ['mp3', 'm4a', 'wav', 'opus'];

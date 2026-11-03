@@ -14,7 +14,7 @@ import {
     Divider,
     Center
 } from '@mantine/core';
-import { IconArrowRight, IconSettings } from '@tabler/icons-react';
+import { IconArrowRight, IconHelp, IconSettings } from '@tabler/icons-react';
 import { open } from '@tauri-apps/plugin-dialog';
 import { dirname, basename, extname, join } from '@tauri-apps/api/path';
 import { Command } from '@tauri-apps/plugin-shell';
@@ -234,7 +234,21 @@ export default function HomePage() {
                             onChange={(val) => val && setPreset(val)}
                         />
                         <Stack gap={4}>
-                            <Text size="sm" fw={500}>CRF Quality: {crf}</Text>
+                            <Group gap="xs" align="center">
+                                <Text size="sm" fw={500}>CRF Quality: {crf}</Text>
+
+                                <Tooltip
+                                    label="CRF (Constant Rate Factor) controls quality for CPU encoding (range 0–51, where lower is better). A setting of 23–28 provides the ideal sweet spot between visual fidelity and file size."
+                                    multiline
+                                    w={260}
+                                    withArrow
+                                >
+                                    <IconHelp
+                                        size={16}
+                                        style={{ cursor: 'help', color: 'var(--mantine-color-dimmed)' }}
+                                    />
+                                </Tooltip>
+                            </Group>
                             <Slider
                                 min={0}
                                 max={51}
