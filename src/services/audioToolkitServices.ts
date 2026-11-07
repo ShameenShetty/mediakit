@@ -6,6 +6,19 @@ export interface AudioBuildArgsOptions {
     isAudioFile: boolean;
 }
 
+// TODO: Optimize long audio processing performance (currently takes ~2 mins for ~2 min files).
+// Implement parallel stream chunking similar to the bash boostAudio.sh script:
+// 1. Split input file into 15-minute segments using ffmpeg segment muxer (`-segment_time 900`).
+// 2. Process chunks in parallel across CPU cores using multi-threaded sidecar calls or worker threads.
+// 3. Generate a concat text manifest file listing all processed chunks.
+// 4. Re-combine chunks using the concat demuxer (`-f concat -safe 0`) while preserving original metadata.
+// Target performance reduction: bring execution time down from minutes to 5-10 seconds.
+
+// TODO: Implement thumbnail/cover art preservation during audio extraction or boost/shrink operations.
+// This requires handling container-specific quirks:
+// - For MP3 files, embedded artwork must be written into ID3 APIC metadata tags.
+// - For M4A/MP4 containers, artwork needs to be attached as a secondary video stream.
+// Currently, operations strip or ignore existing embedded album art.
 export const buildAudioArgs = (options: AudioBuildArgsOptions): string[] => {
     const { inputPath, outputPath, operation, volumeMultiplier = '1.0', isAudioFile } = options;
 

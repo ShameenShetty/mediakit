@@ -39,25 +39,25 @@
     {
       "identifier": "fs:allow-exists",
       "allow": [
-        "$HOME/*",
-        "$DOWNLOAD/*",
-        "$DOCUMENT/*"
+        "$HOME/**",
+        "$DOWNLOAD/**",
+        "$DOCUMENT/**"
       ]
     },
     {
       "identifier": "fs:allow-read-file",
       "allow": [
-        "$HOME/*",
-        "$DOWNLOAD/*",
-        "$DOCUMENT/*"
+        "$HOME/**",
+        "$DOWNLOAD/**",
+        "$DOCUMENT/**"
       ]
     },
     {
       "identifier": "fs:allow-write-file",
       "allow": [
-        "$HOME/*",
-        "$DOWNLOAD/*",
-        "$DOCUMENT/*"
+        "$HOME/**",
+        "$DOWNLOAD/**",
+        "$DOCUMENT/**"
       ]
     }
   ]
