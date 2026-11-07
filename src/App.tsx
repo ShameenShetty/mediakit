@@ -4,6 +4,7 @@ import HomePage from './modules/dashboard/HomePage';
 import SettingsPage from './modules/settings/SettingsPage';
 import { UpscalePage } from './modules/advanced/UpscalePage';
 import { AudioPage } from './modules/audio/AudioPage';
+import { ThumbnailPage } from './modules/thumbnails/ThumbnailPage';
 
 function App() {
   return (
@@ -12,7 +13,7 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path='/' element={<HomePage />} />
 
-          {/* <Route path='/clip' element={<UpscalePage />} /> */}
+          <Route path='/thumbnails' element={<ThumbnailPage />} />
 
           <Route path='/audio-toolkit' element={<AudioPage />} />
 

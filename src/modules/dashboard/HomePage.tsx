@@ -5,6 +5,7 @@ import {
     Collapse,
     Divider,
     Group,
+    Paper,
     Progress,
     Select,
     Slider,
@@ -159,71 +160,68 @@ export default function HomePage() {
 
     return (
         <Stack p="lg" gap="md">
-            <Center pb={10}><Title order={2}>MediaKit Workspace v11</Title></Center>
+            <Center pb={10}><Title order={2}>MediaKit Workspace v13</Title></Center>
 
             {/* 3-Step Pipeline Flow */}
-            <Group align="flex-end" gap="md">
-                <Stack gap={4}>
-                    <Text size="sm" fw={500}>Input File</Text>
-                    <Button variant="default" onClick={handleSelectFile} w={200}>
-                        {fileName ? fileName : 'Choose file...'}
-                    </Button>
-                </Stack>
-
-                <IconArrowRight size={22} style={{ marginBottom: 10 }} />
-
-                <Select
-                    label="Operation"
-                    w={140}
-                    data={operations}
-                    value={operation}
-                    onChange={(val) => {
-                        if (val) {
-                            setOperation(val);
-                            if ((val === 'reencode' || val === 'compress') && inputPath) {
-                                setOutputFormat(fileExt);
-                            } else if (val === 'convert' && inputPath) {
-                                setOutputFormat(isAudioFile ? 'mp3' : 'mp4');
+            <Paper withBorder p="md" radius="md" mb="xl">
+                <Group align="flex-end" gap="md">
+                    <Stack gap={4}>
+                        <Text size="sm" fw={500}>Input File</Text>
+                        <Button variant="default" onClick={handleSelectFile} w={180}>
+                            {fileName ? fileName : 'Choose file...'}
+                        </Button>
+                    </Stack>
+                    <IconArrowRight size={22} style={{ marginBottom: 10 }} />
+                    <Select
+                        label="Operation"
+                        w={120}
+                        data={operations}
+                        value={operation}
+                        onChange={(val) => {
+                            if (val) {
+                                setOperation(val);
+                                if ((val === 'reencode' || val === 'compress') && inputPath) {
+                                    setOutputFormat(fileExt);
+                                } else if (val === 'convert' && inputPath) {
+                                    setOutputFormat(isAudioFile ? 'mp3' : 'mp4');
+                                }
                             }
-                        }
-                    }}
-                />
-
-                <IconArrowRight size={22} style={{ marginBottom: 10 }} />
-
-                {operation === 'compress' ? (
-                    <Select
-                        label="Compression Level"
-                        w={180}
-                        data={compressionPresets}
-                        value={compressionMode}
-                        onChange={(val) => val && setCompressionMode(val)}
+                        }}
                     />
-                ) : (
-                    <Select
-                        key={isAudioFile ? 'audio-formats' : 'video-formats'}
-                        label="Output Format"
-                        w={180}
-                        disabled={operation === 'reencode'}
-                        data={isAudioFile ?
-                            audioFormats.filter(f => f !== fileExt) :
-                            videoFormats.filter(f => f !== fileExt)}
-                        value={outputFormat}
-                        onChange={(val) => val && setOutputFormat(val)}
-                    />
-                )}
-
-                <Tooltip label="Show advanced options">
-                    <ActionIcon
-                        variant={showAdvanced ? 'filled' : 'default'}
-                        size={36}
-                        onClick={() => setShowAdvanced((prev) => !prev)}
-                        style={{ marginBottom: 2 }}
-                    >
-                        <IconSettings size={20} />
-                    </ActionIcon>
-                </Tooltip>
-            </Group>
+                    <IconArrowRight size={22} style={{ marginBottom: 10 }} />
+                    {operation === 'compress' ? (
+                        <Select
+                            label="Compression Level"
+                            w={180}
+                            data={compressionPresets}
+                            value={compressionMode}
+                            onChange={(val) => val && setCompressionMode(val)}
+                        />
+                    ) : (
+                        <Select
+                            key={isAudioFile ? 'audio-formats' : 'video-formats'}
+                            label="Output Format"
+                            w={180}
+                            disabled={operation === 'reencode'}
+                            data={isAudioFile ?
+                                audioFormats.filter(f => f !== fileExt) :
+                                videoFormats.filter(f => f !== fileExt)}
+                            value={outputFormat}
+                            onChange={(val) => val && setOutputFormat(val)}
+                        />
+                    )}
+                    <Tooltip label="Show advanced options">
+                        <ActionIcon
+                            variant={showAdvanced ? 'filled' : 'default'}
+                            size={36}
+                            onClick={() => setShowAdvanced((prev) => !prev)}
+                            style={{ marginBottom: 2 }}
+                        >
+                            <IconSettings size={20} />
+                        </ActionIcon>
+                    </Tooltip>
+                </Group>
+            </Paper>
 
             {/* Advanced Settings Collapse (Preset & CRF Slider) */}
             <Collapse expanded={showAdvanced}>

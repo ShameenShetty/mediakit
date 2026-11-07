@@ -1,4 +1,4 @@
-import { Button, Center, Divider, Group, NumberInput, Progress, Select, Stack, Text, Title, Tooltip } from '@mantine/core';
+import { Button, Center, Divider, Group, NumberInput, Paper, Progress, Select, Stack, Text, Title, Tooltip } from '@mantine/core';
 import { IconArrowRight, IconHelp } from '@tabler/icons-react';
 import { useState } from 'react';
 import { audioFormats, audioToolkitOperations } from '../../constants/mediaOptions';
@@ -133,53 +133,51 @@ export function AudioPage() {
             <Center><Title order={2}>Audio Toolkit</Title></Center>
 
             {/* 3-Step Pipeline Flow */}
-            <Group align="flex-end" gap="md">
-                <Stack gap={4}>
-                    <Text size="sm" fw={500}>Input File</Text>
-                    <Button variant="default" onClick={handleSelectFile} w={200}>
-                        {fileName ? fileName : 'Choose file...'}
-                    </Button>
-                </Stack>
-
-                <IconArrowRight size={22} style={{ marginBottom: 10 }} />
-
-                <Select
-                    label="Operation"
-                    w={140}
-                    data={isAudioFile ? audioToolkitOperations
-                        .filter(op => op.value === 'boost-shrink') : audioToolkitOperations}
-                    value={operation}
-                    onChange={(val) => val && setOperation(val as any)}
-                />
-
-                {operation === 'boost-shrink' && <>
+            <Paper withBorder p="md" radius="md" mb="xl">
+                <Group align="flex-end" gap="md">
+                    <Stack gap={4}>
+                        <Text size="sm" fw={500}>Input File</Text>
+                        <Button variant="default" onClick={handleSelectFile} w={200}>
+                            {fileName ? fileName : 'Choose file...'}
+                        </Button>
+                    </Stack>
                     <IconArrowRight size={22} style={{ marginBottom: 10 }} />
-
-                    <NumberInput
-                        label={
-                            <Tooltip
-                                label="Enter a multiplier to adjust volume: values > 1 boost audio (e.g., 2 or 2.5), fractions between 0 and 1 reduce audio (e.g., 0.5 to halve)."
-                                multiline
-                                w={260}
-                                withArrow
-                            >
-                                <Group gap='xs'>
-                                    <Text>Adjust Audio</Text>
-                                    <IconHelp
-                                        size={16}
-                                        style={{ cursor: 'help', color: 'var(--mantine-color-dimmed)' }}
-                                    />
-                                </Group>
-                            </Tooltip>
-                        }
-                        decimalScale={1}
-                        max={5}
-                        min={0}
-                        value={volumeMultiplier}
-                        onChange={(val) => setVolumeMultiplier(val as number | '')}
+                    <Select
+                        label="Operation"
+                        w={140}
+                        data={isAudioFile ? audioToolkitOperations
+                            .filter(op => op.value === 'boost-shrink') : audioToolkitOperations}
+                        value={operation}
+                        onChange={(val) => val && setOperation(val as any)}
                     />
-                </>}
-            </Group>
+                    {operation === 'boost-shrink' && <>
+                        <IconArrowRight size={22} style={{ marginBottom: 10 }} />
+                        <NumberInput
+                            label={
+                                <Tooltip
+                                    label="Enter a multiplier to adjust volume: values > 1 boost audio (e.g., 2 or 2.5), fractions between 0 and 1 reduce audio (e.g., 0.5 to halve)."
+                                    multiline
+                                    w={260}
+                                    withArrow
+                                >
+                                    <Group gap='xs'>
+                                        <Text>Adjust Audio</Text>
+                                        <IconHelp
+                                            size={16}
+                                            style={{ cursor: 'help', color: 'var(--mantine-color-dimmed)' }}
+                                        />
+                                    </Group>
+                                </Tooltip>
+                            }
+                            decimalScale={1}
+                            max={5}
+                            min={0}
+                            value={volumeMultiplier}
+                            onChange={(val) => setVolumeMultiplier(val as number | '')}
+                        />
+                    </>}
+                </Group>
+            </Paper>
 
             <Divider my="sm" />
 
