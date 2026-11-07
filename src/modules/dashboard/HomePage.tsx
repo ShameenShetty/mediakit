@@ -167,9 +167,10 @@ export default function HomePage() {
         }
     }
 
+    const latestVer = 'v10'
     return (
         <Stack p="lg" gap="md">
-            <Center pb={10}><Title order={2}>MediaKit Workspace</Title></Center>
+            <Center pb={10}><Title order={2}>MediaKit Workspace {latestVer}</Title></Center>
 
             {/* 3-Step Pipeline Flow */}
             <Group align="flex-end" gap="md">
