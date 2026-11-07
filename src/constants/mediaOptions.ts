@@ -4,6 +4,11 @@ export const operations = [
     { label: 'Compress', value: 'compress' },
 ];
 
+export const audioToolkitOperations = [
+    { label: 'Extract', value: 'extract' },
+    { label: 'Boost/Shrink', value: 'boost-shrink' },
+];
+
 export const compressionPresets = [
     { label: 'Low Compression', value: 'low' },
     { label: 'Balanced', value: 'balanced' },

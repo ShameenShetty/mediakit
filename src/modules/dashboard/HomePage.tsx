@@ -1,31 +1,31 @@
-import { useState } from 'react';
 import {
-    Stack,
-    Title,
-    Group,
-    Button,
-    Select,
-    Progress,
     ActionIcon,
-    Tooltip,
+    Button,
+    Center,
     Collapse,
-    Slider,
-    Text,
     Divider,
-    Center
+    Group,
+    Progress,
+    Select,
+    Slider,
+    Stack,
+    Text,
+    Title,
+    Tooltip
 } from '@mantine/core';
-import { IconArrowRight, IconHelp, IconSettings } from '@tabler/icons-react';
-import { open } from '@tauri-apps/plugin-dialog';
-import { exists } from '@tauri-apps/plugin-fs';
-import { dirname, basename, extname, join } from '@tauri-apps/api/path';
-import { Command } from '@tauri-apps/plugin-shell';
 import { notifications } from '@mantine/notifications';
-import { getDuration } from '../../utils/getDuration';
-import { extractProgress } from '../../utils/extractProgress';
-import { audioFormats, operations, compressionPresets, videoFormats, encodingPresets } from '../../constants/mediaOptions';
-import { calculateEta } from '../../utils/calculateEta';
-import { extractSpeed } from '../../utils/extractSpeed';
+import { IconArrowRight, IconHelp, IconSettings } from '@tabler/icons-react';
+import { basename, dirname, extname, join } from '@tauri-apps/api/path';
+import { exists } from '@tauri-apps/plugin-fs';
+import { Command } from '@tauri-apps/plugin-shell';
+import { useState } from 'react';
+import { audioFormats, compressionPresets, encodingPresets, operations, videoFormats } from '../../constants/mediaOptions';
 import { buildFfmpegArgs } from '../../services/ffmpegServices';
+import { calculateEta } from '../../utils/calculateEta';
+import { extractProgress } from '../../utils/extractProgress';
+import { extractSpeed } from '../../utils/extractSpeed';
+import { getDuration } from '../../utils/getDuration';
+import { selectInputFile } from '../../utils/selectInputFile';
 
 // TODO
 // If I am encoding something, the switch over to another page, when I come back to the 
@@ -54,10 +54,7 @@ export default function HomePage() {
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
     async function handleSelectFile() {
-        const selected = await open({
-            multiple: false,
-            directory: false,
-        });
+        const selected = await selectInputFile('both');
 
         // TODO IMPORTANT
         // Based on the operation if there is an already existing file, e.g. "input_webm_reencoded.webm"
