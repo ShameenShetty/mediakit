@@ -10,6 +10,7 @@
     "opener:default",
     "shell:default",
     "dialog:default",
+    "fs:default",
     {
       "identifier": "shell:allow-spawn",
       "allow": [
@@ -33,6 +34,30 @@
           "sidecar": true,
           "args": true
         }
+      ]
+    },
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [
+        "$HOME/*",
+        "$DOWNLOAD/*",
+        "$DOCUMENT/*"
+      ]
+    },
+    {
+      "identifier": "fs:allow-read-file",
+      "allow": [
+        "$HOME/*",
+        "$DOWNLOAD/*",
+        "$DOCUMENT/*"
+      ]
+    },
+    {
+      "identifier": "fs:allow-write-file",
+      "allow": [
+        "$HOME/*",
+        "$DOWNLOAD/*",
+        "$DOCUMENT/*"
       ]
     }
   ]

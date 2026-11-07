@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { IconArrowRight, IconHelp, IconSettings } from '@tabler/icons-react';
 import { open } from '@tauri-apps/plugin-dialog';
+import { exists } from '@tauri-apps/plugin-fs';
 import { dirname, basename, extname, join } from '@tauri-apps/api/path';
 import { Command } from '@tauri-apps/plugin-shell';
 import { notifications } from '@mantine/notifications';
@@ -62,6 +63,9 @@ export default function HomePage() {
         // Based on the operation if there is an already existing file, e.g. "input_webm_reencoded.webm"
         // then we should prompt the user whether they want to overwrite that file or create a new one.
         // Currently, it will do nothing and just fail silently, which is not a good user experience.
+        // TODO another bug related to the above
+        // If I try reencoding a video and it will have the same output name as an existing file, then we get
+        // an infinite loop of "Calculating..." ETA and nothing happens.
         if (selected && typeof selected === 'string') {
             setInputPath(selected);
             const name = await basename(selected);
@@ -100,7 +104,16 @@ export default function HomePage() {
 
             let endName = '';
             operation === 'reencode' ? endName = 'reencoded' : endName = operation + 'ed';
-            const outputPath = await join(parentDir, `${baseName}_${endName}.${outputFormat}`);
+
+            let outputPath = await join(parentDir, `${baseName}_${endName}.${outputFormat}`);
+            let existingFile = true;
+
+            let count = 1;
+            while (existingFile) {
+                existingFile = await exists(outputPath)
+                if (existingFile) outputPath = await join(parentDir, `${baseName}_${endName} (${count}).${outputFormat}`);
+                count++;
+            }
 
             let args: string[] = buildFfmpegArgs({
                 inputPath,
@@ -238,7 +251,7 @@ export default function HomePage() {
                                 <Text size="sm" fw={500}>CRF Quality: {crf}</Text>
 
                                 <Tooltip
-                                    label="CRF (Constant Rate Factor) controls quality for CPU encoding (range 0–51, where lower is better). A setting of 23–28 provides the ideal sweet spot between visual fidelity and file size."
+                                    label="CRF (Constant Rate Factor) controls quality for CPU encoding (range 0-51, where lower is better). A setting of 23-28 provides the ideal sweet spot between visual fidelity and file size."
                                     multiline
                                     w={260}
                                     withArrow

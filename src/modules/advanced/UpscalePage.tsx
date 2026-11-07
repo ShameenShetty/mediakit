@@ -1,4 +1,5 @@
 import { ActionIcon, Alert, Button, Center, Collapse, Divider, Group, Progress, Select, Slider, Stack, Text, Title, Tooltip } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { IconAlertTriangle, IconArrowRight, IconHelp, IconSettings } from '@tabler/icons-react';
 import { invoke } from '@tauri-apps/api/core';
 import { basename, dirname, extname } from '@tauri-apps/api/path';
@@ -7,7 +8,6 @@ import { Command } from '@tauri-apps/plugin-shell';
 import { useEffect, useState } from 'react';
 import { scaleOptions, videoFormats } from '../../constants/mediaOptions';
 import { buildUpscaleArgs } from '../../services/upscaleServices';
-import { notifications } from '@mantine/notifications';
 import { calculateEta } from '../../utils/calculateEta';
 import { extractProgress } from '../../utils/extractProgress';
 import { extractSpeed } from '../../utils/extractSpeed';
@@ -134,7 +134,7 @@ export function UpscalePage() {
 
     return (
         <Stack p="lg" gap="md">
-            <Center><Title order={2}>Hardware Upscale Video</Title></Center>
+            <Center><Title order={2}>Upscale Video</Title></Center>
 
             <Group align="flex-end" gap="md">
                 <Button variant="default" onClick={handleSelectFile} w={200}>
@@ -192,7 +192,7 @@ export function UpscalePage() {
                             <Text size="sm" fw={500}>QV Quality:</Text>
 
                             <Tooltip
-                                label="QV (-q:v) controls hardware encoding quality for Apple VideoToolbox (range 1–100, higher is better). Default (50) offers the best balance between 4K upscale details and manageable file sizes."
+                                label="QV (-q:v) controls hardware encoding quality for Apple VideoToolbox (range 1-100, higher is better). Default (50) offers the best balance between 4K upscale details and manageable file sizes."
                                 multiline
                                 w={260}
                                 withArrow
