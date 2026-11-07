@@ -7,6 +7,7 @@ export const operations = [
 export const audioToolkitOperations = [
     { label: 'Extract', value: 'extract' },
     { label: 'Boost/Shrink', value: 'boost-shrink' },
+    { label: 'Mute', value: 'mute' },
 ];
 
 export const compressionPresets = [

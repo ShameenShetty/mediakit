@@ -56,13 +56,6 @@ export default function HomePage() {
     async function handleSelectFile() {
         const selected = await selectInputFile('both');
 
-        // TODO IMPORTANT
-        // Based on the operation if there is an already existing file, e.g. "input_webm_reencoded.webm"
-        // then we should prompt the user whether they want to overwrite that file or create a new one.
-        // Currently, it will do nothing and just fail silently, which is not a good user experience.
-        // TODO another bug related to the above
-        // If I try reencoding a video and it will have the same output name as an existing file, then we get
-        // an infinite loop of "Calculating..." ETA and nothing happens.
         if (selected && typeof selected === 'string') {
             setInputPath(selected);
             const name = await basename(selected);
@@ -164,10 +157,9 @@ export default function HomePage() {
         }
     }
 
-    const latestVer = 'v10'
     return (
         <Stack p="lg" gap="md">
-            <Center pb={10}><Title order={2}>MediaKit Workspace {latestVer}</Title></Center>
+            <Center pb={10}><Title order={2}>MediaKit Workspace v11</Title></Center>
 
             {/* 3-Step Pipeline Flow */}
             <Group align="flex-end" gap="md">
