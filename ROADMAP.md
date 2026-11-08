@@ -16,6 +16,9 @@ Future milestones and planned architectural enhancements for MediaKit:
 - **Live Preview Playback:** Implement live preview playback for selected cut segments prior to processing (similar to web tools like `mp3cut.net` or `online-video-cutter.com`).
 - **Multi-Segment Timeline:** Support multi-segment timeline selection for cutting and merging multiple sections from a single source file.
 
-## ⚙️ Performance & System Workflows
+## ⚙️ Performance, Architecture & System Workflows
 
+- **Multi-Core Parallel Stream Chunking:** Implement segment-based parallel processing pipelines (splitting long audio and single-threaded conversion tasks into 15-minute chunks across CPU cores using the segment/concat muxer workflow) to slash execution times from minutes down to seconds.
+- **Global State Persistence & Background Jobs:** Integrate a global state management layer (such as Zustand) to persist active transcoding and utility processes in the background, preventing UI resets when navigating between pages.
 - **Batch Processing Queue:** Queue and process multiple files concurrently with unified progress tracking across all toolkits.
+- **Container Metadata & Artwork Preservation:** Robust handling of container-specific quirks to preserve or strip/re-attach embedded cover art and thumbnail streams (ID3 APIC tags for MP3s, secondary video streams for M4A/MP4 containers) during format conversions and re-encoding passes.
