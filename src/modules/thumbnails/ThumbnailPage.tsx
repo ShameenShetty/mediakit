@@ -43,7 +43,7 @@ export function ThumbnailPage() {
 
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
     const [progress, setProgress] = useState<number>(0);
-    const [speed, setSpeed] = useState<number>(0);
+    const [_, setSpeed] = useState<number>(0);
     const [eta, setEta] = useState<string>('Calculating...');
 
     const handleSelectInputFile = async () => {
