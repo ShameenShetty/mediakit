@@ -9,19 +9,6 @@ export interface BuildArgsOptions {
     crf: number;
 }
 
-// TODO: Optimize large audio file conversion performance. Currently, audio conversions 
-// run on a single core (unlike video processing, which utilizes multi-core hardware scaling).
-// Implement parallel stream chunking for audio conversion inputs:
-// 1. Split the source audio file into 15-minute segments using the segment muxer (`-segment_time 900`).
-// 2. Convert each chunk in parallel across available CPU cores using sidecar/worker threads.
-// 3. Build a concat text manifest file indexing all converted chunks.
-// 4. Re-combine the chunks using the concat demuxer (`-f concat -safe 0`) while preserving metadata.
-
-// TODO: Implement thumbnail and cover art preservation during audio/video conversion operations.
-// This is complex due to container format variations:
-// - For MP3 files, embedded artwork must be encoded into ID3 APIC metadata tags.
-// - For M4A, MP4, or other containers, artwork needs to be handled as a secondary attached picture stream.
-// Currently, format conversions strip or ignore embedded cover art and thumbnails.
 export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
     const { inputPath, outputPath, operation, outputFormat, isAudioFile, compressionMode, preset, crf } = options;
     let args: string[] = ['-i', inputPath];
@@ -69,9 +56,6 @@ export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
     // --------------------------------------------------------
     // Reencode branch
     // --------------------------------------------------------
-
-    // TODO reencoding mp3 fails immediately with error code 234 probably because the 2nd stream is the thumbnail
-    // which ffmpeg cannot reencode. We need to either ignore the thumbnail stream or remove it before reencoding
     else if (operation === 'reencode') {
         if (isAudioFile) {
             args.push('-c:a', 'aac', '-b:a', '192k');
@@ -84,8 +68,6 @@ export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
     // Conversion branch
     // --------------------------------------------------------
     else if (operation === 'convert') {
-        // Related to the above TODO, we need to handle the thumbnail stream properly for conversion as well
-        // Because even if we are successfully converting an audio file the output file has no thumbnail
         if (isAudioFile) {
             if (outputFormat === 'mp3') {
                 args.push('-c:a', 'libmp3lame', '-b:a', '192k');

@@ -22,12 +22,6 @@ import { getDuration } from '../../utils/getDuration';
 import { selectInputFile } from '../../utils/selectInputFile';
 import { parseTimeToSeconds, formatSecondsToTimecode } from '../../utils/timeParser';
 
-// TODO (Future Feature - Advanced Media Splicing & Preview):
-// - Integrate an embedded media player (e.g. HTML5 video/audio player or wavesurfer.js for audio waveforms)
-// - Add dynamic range slider / dual scrubbers to visually adjust start and end cut points
-// - Implement live preview playback for the selected cut segment prior to processing
-//  (similar to mp3cut.net / online-video-cutter.com)
-// - Support multi-segment timeline selection (cutting multiple sections out of a single file and merging them)
 export function ClipCutPage() {
     const [inputPath, setInputPath] = useState<string>('');
     const [fileName, setFileName] = useState<string>('');

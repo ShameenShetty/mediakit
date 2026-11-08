@@ -28,12 +28,6 @@ import { extractSpeed } from '../../utils/extractSpeed';
 import { getDuration } from '../../utils/getDuration';
 import { selectInputFile } from '../../utils/selectInputFile';
 
-// TODO
-// If I am encoding something, the switch over to another page, when I come back to the 
-// original page, the home screen is reset even though the process is still running in the background.
-// Maybe I can use Zustand to store the state of the process, or continue listening to the process
-// in the background
-
 export default function HomePage() {
     const [inputPath, setInputPath] = useState<string | null>(null);
     const [fileName, setFileName] = useState<string>('');
@@ -160,7 +154,7 @@ export default function HomePage() {
 
     return (
         <Stack p="lg" gap="md">
-            <Center pb={10}><Title order={2}>MediaKit Workspace v13</Title></Center>
+            <Center pb={10}><Title order={2}>MediaKit Workspace v14</Title></Center>
 
             {/* 3-Step Pipeline Flow */}
             <Paper withBorder p="md" radius="md" mb="xl">

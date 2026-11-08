@@ -1,0 +1,62 @@
+# TODO List
+
+Tracked technical debt, architectural optimizations, and future enhancements across the MediaKit codebase.
+
+## 📄 `ClipCutPage.tsx`
+
+- **Advanced Media Splicing & Preview**
+  - Integrate an embedded media player (e.g. HTML5 video/audio player or wavesurfer.js for audio waveforms).
+  - Add dynamic range slider / dual scrubbers to visually adjust start and end cut points.
+  - Implement live preview playback for the selected cut segment prior to processing (similar to `mp3cut.net` / `online-video-cutter.com`).
+  - Support multi-segment timeline selection (cutting multiple sections out of a single file and merging them).
+
+---
+
+## 📄 `HomePage.tsx`
+
+- **State Persistence & Background Jobs**
+  - If encoding something, switching over to another page causes the screen to reset even though the process is still running in the background. 
+  - Investigate using Zustand to store the state of active processes or continue listening to the process streams globally in the background.
+
+---
+
+## 📄 `audioToolkitServices.ts`
+
+- **Performance Optimization (Parallel Stream Chunking)**
+  - Optimize long audio processing performance (currently takes ~2 mins for ~2 min files).
+  - Implement parallel stream chunking similar to the bash `boostAudio.sh` script:
+    1. Split input file into 15-minute segments using ffmpeg segment muxer (`-segment_time 900`).
+    2. Process chunks in parallel across CPU cores using multi-threaded sidecar calls or worker threads.
+    3. Generate a concat text manifest file listing all processed chunks.
+    4. Re-combine chunks using the concat demuxer (`-f concat -safe 0`) while preserving original metadata.
+  - *Target performance reduction:* bring execution time down from minutes to 5-10 seconds.
+
+- **Album Art & Metadata Preservation**
+  - Implement thumbnail/cover art preservation during audio extraction or boost/shrink operations.
+  - Handle container-specific quirks:
+    - For MP3 files, embedded artwork must be written into ID3 APIC metadata tags.
+    - For M4A/MP4 containers, artwork needs to be attached as a secondary video stream.
+  - Currently, operations strip or ignore existing embedded album art.
+
+---
+
+## 📄 `ffmpegServices.ts`
+
+- **Audio Conversion Performance Optimization**
+  - Optimize large audio file conversion performance. Currently, audio conversions run on a single core (unlike video processing, which utilizes multi-core hardware scaling).
+  - Implement parallel stream chunking for audio conversion inputs:
+    1. Split the source audio file into 15-minute segments using the segment muxer (`-segment_time 900`).
+    2. Convert each chunk in parallel across available CPU cores using sidecar/worker threads.
+    3. Build a concat text manifest file indexing all converted chunks.
+    4. Re-combine the chunks using the concat demuxer (`-f concat -safe 0`) while preserving metadata.
+
+- **Thumbnail and Cover Art Stream Handling**
+  - Implement thumbnail and cover art preservation during audio/video conversion operations.
+  - Handle complex container format variations:
+    - For MP3 files, embedded artwork must be encoded into ID3 APIC metadata tags.
+    - For M4A, MP4, or other containers, artwork needs to be handled as a secondary attached picture stream.
+  - Currently, format conversions strip or ignore embedded cover art and thumbnails.
+
+- **Fix MP3 Re-encoding Crash**
+  - Re-encoding MP3 fails immediately with error code `234`, likely because the second stream is the embedded thumbnail which FFmpeg cannot re-encode directly.
+  - Implement logic to either ignore the thumbnail stream or strip/remove it before running the re-encoding pass.
