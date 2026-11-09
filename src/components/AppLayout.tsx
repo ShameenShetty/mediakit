@@ -36,6 +36,10 @@ export default function AppLayout() {
                 width: hovered ? 220 : 80,
                 breakpoint: 'sm',
             }}
+            styles={{
+                main: { backgroundColor: '#f4f8fa' },
+                navbar: { backgroundColor: '#f4f8fa' },
+            }}
         >
             <AppShell.Navbar
                 p="xs"

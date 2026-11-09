@@ -5,9 +5,10 @@ import "./App.css";
 import { Notifications } from '@mantine/notifications';
 import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
+import { appTheme } from './theme';
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <MantineProvider>
+  <MantineProvider theme={appTheme}>
     <Notifications position='top-right' zIndex={1000} />
     <App />
   </MantineProvider>
