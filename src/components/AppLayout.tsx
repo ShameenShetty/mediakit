@@ -14,17 +14,65 @@ export default function AppLayout() {
     const [hovered, setHovered] = useState(false);
     const location = useLocation();
 
-    // Reusable Label component
+    // Reusable Label component with smooth opacity transition
     const NavLabel = ({ text }: { text: string }) => (
-        <span className="nav-label" style={{ whiteSpace: 'nowrap' }}>
+        <span
+            className="nav-label"
+            style={{
+                whiteSpace: 'nowrap',
+                opacity: hovered ? 1 : 0,
+                visibility: hovered ? 'visible' : 'hidden',
+                transition: 'opacity 0.2s ease-in-out'
+            }}
+        >
             {text}
         </span>
     );
 
-    // Reusable Section Header
+    // Reusable Section Header with a collapsed indicator icon/ellipsis and expanded text
     const SectionHeader = ({ title }: { title: string }) => (
-        <Box className="nav-section-header">
-            <Text size="xs" fw={700} c="dimmed" px="sm" pt={4} tt="uppercase" style={{ whiteSpace: 'nowrap' }}>
+        <Box
+            className="nav-section-header"
+            style={{
+                height: '28px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: hovered ? 'flex-start' : 'center',
+                paddingLeft: hovered ? 'var(--mantine-spacing-sm)' : '0px',
+                position: 'relative',
+                overflow: 'hidden',
+            }}
+        >
+            {/* Collapsed state indicator (dots / dash) */}
+            <span
+                style={{
+                    position: 'absolute',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    opacity: hovered ? 0 : 1,
+                    color: 'var(--mantine-color-dimmed)',
+                    fontWeight: 700,
+                    fontSize: '14px',
+                    letterSpacing: '2px',
+                    transition: 'opacity 0.2s ease-in-out',
+                    pointerEvents: 'none',
+                }}
+            >
+                ···
+            </span>
+
+            {/* Expanded state text */}
+            <Text
+                size="xs"
+                fw={700}
+                c="dimmed"
+                tt="uppercase"
+                style={{
+                    whiteSpace: 'nowrap',
+                    opacity: hovered ? 1 : 0,
+                    transition: 'opacity 0.2s ease-in-out',
+                }}
+            >
                 {title}
             </Text>
         </Box>
@@ -38,14 +86,13 @@ export default function AppLayout() {
             }}
             styles={{
                 main: { backgroundColor: '#f4f8fa' },
-                navbar: { backgroundColor: '#f4f8fa' },
+                navbar: { backgroundColor: '#e9f1f5' },
             }}
         >
             <AppShell.Navbar
                 p="xs"
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
-                className={hovered ? 'nav-expanded' : 'nav-collapsed'}
                 style={{
                     overflowX: 'hidden',
                     transition: 'width 0.2s ease-in-out',
