@@ -29,7 +29,7 @@ export default function AppLayout() {
         </span>
     );
 
-    // Reusable Section Header with a collapsed indicator icon/ellipsis and expanded text
+    // Reusable Section Header driven by clean CSS classes
     const SectionHeader = ({ title }: { title: string }) => (
         <Box
             className="nav-section-header"
@@ -43,21 +43,8 @@ export default function AppLayout() {
                 overflow: 'hidden',
             }}
         >
-            {/* Collapsed state indicator (dots / dash) */}
-            <span
-                style={{
-                    position: 'absolute',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    opacity: hovered ? 0 : 1,
-                    color: 'var(--mantine-color-dimmed)',
-                    fontWeight: 700,
-                    fontSize: '14px',
-                    letterSpacing: '2px',
-                    transition: 'opacity 0.2s ease-in-out',
-                    pointerEvents: 'none',
-                }}
-            >
+            {/* Collapsed state indicator (dots) */}
+            <span className={`nav-dots ${hovered ? 'is-hovered' : ''}`}>
                 ···
             </span>
 
@@ -67,11 +54,8 @@ export default function AppLayout() {
                 fw={700}
                 c="dimmed"
                 tt="uppercase"
-                style={{
-                    whiteSpace: 'nowrap',
-                    opacity: hovered ? 1 : 0,
-                    transition: 'opacity 0.2s ease-in-out',
-                }}
+                className={`nav-title ${hovered ? 'is-hovered' : ''}`}
+                style={{ whiteSpace: 'nowrap' }}
             >
                 {title}
             </Text>
@@ -81,7 +65,7 @@ export default function AppLayout() {
     return (
         <AppShell
             navbar={{
-                width: hovered ? 220 : 80,
+                width: hovered ? 220 : 60,
                 breakpoint: 'sm',
             }}
             styles={{
@@ -90,7 +74,8 @@ export default function AppLayout() {
             }}
         >
             <AppShell.Navbar
-                p="xs"
+                px='6'
+                py='xs'
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
                 style={{

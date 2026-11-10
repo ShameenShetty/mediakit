@@ -1,5 +1,6 @@
 /* Smooth transition rules for sidebar items */
-.nav-section-header, .nav-label {
+.nav-section-header,
+.nav-label {
     transition: opacity 0.4s ease-in-out, height 0.4s ease-in-out, color 0.4s ease-in-out;
 }
 
@@ -21,4 +22,36 @@
 
 .nav-expanded .nav-label {
     opacity: 1;
+}
+
+/* Section header dot indicators */
+.nav-dots {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--mantine-color-dimmed);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 2px;
+    pointer-events: none;
+    /* When un-hovered (collapsed), it is visible with a slight delay so it doesn't flash */
+    opacity: 1;
+    transition: opacity 0.2s ease-in-out 0.15s;
+}
+
+.nav-dots.is-hovered {
+    /* When hovered, fade out immediately */
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
+}
+
+/* Section header title text */
+.nav-title {
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
+}
+
+.nav-title.is-hovered {
+    opacity: 1;
+    transition: opacity 0.2s ease-in-out 0.05s;
 }
