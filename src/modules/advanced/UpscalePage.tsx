@@ -14,7 +14,6 @@ import { extractSpeed } from '../../utils/extractSpeed';
 import { getDuration } from '../../utils/getDuration';
 
 export function UpscalePage() {
-
     const [inputPath, setInputPath] = useState<string | null>(null);
     const [fileName, setFileName] = useState<string>('');
     const [fileExt, setFileExt] = useState<string>('');
@@ -158,7 +157,23 @@ export function UpscalePage() {
                 <IconArrowRight size={22} style={{ marginBottom: 10 }} />
 
                 {/* Upscale button */}
-                <Button onClick={handleUpscale}>Upscale</Button>
+                <Stack gap="4">
+                    <Tooltip
+                        multiline
+                        w={280}
+                        withArrow
+                        position="top"
+                        label="Upscales videos using native GPU hardware acceleration: VideoToolbox (macOS), NVENC/AMF/QSV (Windows), or VAAPI/NVENC (Linux)."
+                    >
+                        <IconHelp
+                            size={16}
+                            style={{ cursor: 'help', color: 'var(--mantine-color-dimmed)' }}
+                        />
+                    </Tooltip>
+                    <Button onClick={handleUpscale}>
+                        Upscale
+                    </Button>
+                </Stack>
 
                 <Tooltip label="Show advanced options">
                     <ActionIcon

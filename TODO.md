@@ -60,3 +60,9 @@ Tracked technical debt, architectural optimizations, and future enhancements acr
 - **Fix MP3 Re-encoding Crash**
   - Re-encoding MP3 fails immediately with error code `234`, likely because the second stream is the embedded thumbnail which FFmpeg cannot re-encode directly.
   - Implement logic to either ignore the thumbnail stream or strip/remove it before running the re-encoding pass.
+
+## 📄 `UpscalePage.tsx`
+
+- **Local ML Upscaling Model Downloads**
+  - Implement dynamic prompt and downloader for optional lightweight ML upscaling models (e.g., Real-ESRGAN, Compact ONNX models around 1–2 GB).
+  - Support choice between fast GPU/CPU hardware acceleration pipelines and high-quality neural upscaling for both static images and video files.
