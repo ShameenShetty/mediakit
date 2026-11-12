@@ -154,7 +154,7 @@ export default function HomePage() {
 
     return (
         <Stack p="lg" gap="md">
-            <Center pb={10}><Title order={2}>MediaKit Workspace v18</Title></Center>
+            <Center pb={10}><Title order={2}>MediaKit Workspace v19</Title></Center>
 
             {/* 3-Step Pipeline Flow */}
             <Paper withBorder p="md" radius="md" mb="xl">
@@ -166,8 +166,33 @@ export default function HomePage() {
                         </Button>
                     </Stack>
                     <IconArrowRight size={22} style={{ marginBottom: 10 }} />
+
                     <Select
-                        label="Operation"
+                        label={
+                            <Group gap='4'>
+                                <Text>Operation</Text>
+                                <Tooltip
+                                    multiline
+                                    w={260}
+                                    withArrow
+                                    position="top"
+                                    label={
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                            <div>• <b>Convert</b>: Transcodes audio and video streams into your chosen target format.</div>
+
+                                            <div>• <b>Re-Encode</b>: Re-compresses video and audio streams using standard codecs (H.264/AAC) while maintaining container compatibility.</div>
+
+                                            <div>• <b>Compress</b>: Lowers bitrate to reduce file size.</div>
+                                        </div>
+                                    }
+                                >
+                                    <IconHelp
+                                        size={16}
+                                        style={{ cursor: 'help', color: 'var(--mantine-color-dimmed)' }}
+                                    />
+                                </Tooltip>
+                            </Group>
+                        }
                         w={120}
                         data={operations}
                         value={operation}
@@ -182,6 +207,7 @@ export default function HomePage() {
                             }
                         }}
                     />
+
                     <IconArrowRight size={22} style={{ marginBottom: 10 }} />
                     {operation === 'compress' ? (
                         <Select

@@ -18,56 +18,9 @@ export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
     }
 
     // --------------------------------------------------------
-    // Compression branch
-    // --------------------------------------------------------
-    if (operation === 'compress') {
-        // Compression preset mappings
-        let targetCrf = '26';
-        let targetPreset = 'fast';
-        if (compressionMode === 'low') { targetCrf = '21'; targetPreset = 'medium'; }
-        if (compressionMode === 'high') { targetCrf = '30'; targetPreset = 'veryfast'; }
-
-        if (isAudioFile) {
-            args.push('-c:a', 'libmp3lame', '-b:a', compressionMode === 'high' ? '96k' : '128k');
-        } else {
-            // Video compression branch with WebM/VP9 support
-            if (outputFormat === 'webm') {
-                let cpuUsed = '3'; // default / fast equivalent for compression
-                if (targetPreset === 'veryfast') cpuUsed = '4';
-                else if (targetPreset === 'fast') cpuUsed = '3';
-                else if (targetPreset === 'medium') cpuUsed = '2';
-                else if (targetPreset === 'slow') cpuUsed = '0';
-
-                args.push(
-                    '-c:v', 'libvpx-vp9',
-                    '-crf', targetCrf,
-                    '-b:v', '0',
-                    '-cpu-used', cpuUsed,
-                    '-row-mt', '1',
-                    '-c:a', 'libopus',
-                    '-b:a', '128k'
-                );
-            } else {
-                args.push('-c:v', 'libx264', '-preset', targetPreset, '-crf', targetCrf, '-c:a', 'aac', '-b:a', '128k');
-            }
-        }
-    }
-
-    // --------------------------------------------------------
-    // Reencode branch
-    // --------------------------------------------------------
-    else if (operation === 'reencode') {
-        if (isAudioFile) {
-            args.push('-c:a', 'aac', '-b:a', '192k');
-        } else {
-            args.push('-c:v', 'libx264', '-preset', preset, '-crf', crf.toString(), '-c:a', 'aac');
-        }
-    }
-
-    // --------------------------------------------------------
     // Conversion branch
     // --------------------------------------------------------
-    else if (operation === 'convert') {
+    if (operation === 'convert') {
         if (isAudioFile) {
             if (outputFormat === 'mp3') {
                 args.push('-c:a', 'libmp3lame', '-b:a', '192k');
@@ -107,6 +60,53 @@ export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
                     '-crf', crf.toString(),
                     '-c:a', 'aac'
                 );
+            }
+        }
+    }
+
+    // --------------------------------------------------------
+    // Reencode branch
+    // --------------------------------------------------------
+    else if (operation === 'reencode') {
+        if (isAudioFile) {
+            args.push('-c:a', 'aac', '-b:a', '192k');
+        } else {
+            args.push('-c:v', 'libx264', '-preset', preset, '-crf', crf.toString(), '-c:a', 'aac');
+        }
+    }
+
+    // --------------------------------------------------------
+    // Compression branch
+    // --------------------------------------------------------
+    else if (operation === 'compress') {
+        // Compression preset mappings
+        let targetCrf = '26';
+        let targetPreset = 'fast';
+        if (compressionMode === 'low') { targetCrf = '21'; targetPreset = 'medium'; }
+        if (compressionMode === 'high') { targetCrf = '30'; targetPreset = 'veryfast'; }
+
+        if (isAudioFile) {
+            args.push('-c:a', 'libmp3lame', '-b:a', compressionMode === 'high' ? '96k' : '128k');
+        } else {
+            // Video compression branch with WebM/VP9 support
+            if (outputFormat === 'webm') {
+                let cpuUsed = '3'; // default / fast equivalent for compression
+                if (targetPreset === 'veryfast') cpuUsed = '4';
+                else if (targetPreset === 'fast') cpuUsed = '3';
+                else if (targetPreset === 'medium') cpuUsed = '2';
+                else if (targetPreset === 'slow') cpuUsed = '0';
+
+                args.push(
+                    '-c:v', 'libvpx-vp9',
+                    '-crf', targetCrf,
+                    '-b:v', '0',
+                    '-cpu-used', cpuUsed,
+                    '-row-mt', '1',
+                    '-c:a', 'libopus',
+                    '-b:a', '128k'
+                );
+            } else {
+                args.push('-c:v', 'libx264', '-preset', targetPreset, '-crf', targetCrf, '-c:a', 'aac', '-b:a', '128k');
             }
         }
     } else {
