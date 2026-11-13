@@ -158,7 +158,7 @@ export default function HomePage() {
 
     return (
         <Stack p='lg' gap='md'>
-            <Center pb={10}><Title order={2}>MediaKit Workspace v19</Title></Center>
+            <Center pb={10}><Title order={2}>MediaKit Workspace v20</Title></Center>
 
             {/* 3-Step Pipeline Flow */}
             <Paper withBorder p='md' radius='md' mb='xl'>

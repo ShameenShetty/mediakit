@@ -50,6 +50,11 @@ Tracked technical debt, architectural optimizations, and future enhancements acr
     3. Build a concat text manifest file indexing all converted chunks.
     4. Re-combine the chunks using the concat demuxer (`-f concat -safe 0`) while preserving metadata.
 
+- **ImageMagick Binary Integration**
+  - Bundle the ImageMagick (`magick`) binary as a Tauri sidecar to handle robust, full-featured image format conversion and manipulation.
+  - Bypass current FFmpeg static build limitations (such as missing `libwebp` encoder support) by routing image-specific operations through ImageMagick.
+  - Enable high-performance, lossless and lossy handling across all standard web image formats (`.jpg`, `.jpeg`, `.png`, `.webp`, `.avif`).
+
 - **Thumbnail and Cover Art Stream Handling**
   - Implement thumbnail and cover art preservation during audio/video conversion operations.
   - Handle complex container format variations:

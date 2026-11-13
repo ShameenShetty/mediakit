@@ -6,7 +6,8 @@ Future milestones and planned architectural enhancements for MediaKit:
 
 - **Advanced File Compression:** Reduce video and audio file sizes by configuring custom target bitrates or encoding presets.
 - **Audio Toolkit Extensions:** Expanded audio manipulation features, custom equalizer filters, and advanced audio track routing.
-- **Enhanced Thumbnail Management:** Batch extraction of frame thumbnails and automated multi-resolution artwork embedding.
+- **Dedicated Images Module & ImageMagick Suite:** Implement a dedicated image processing module featuring ImageMagick integration for advanced manipulation (watermarking, cropping, rotation, filters) and complete format compatibility (including WebP and AVIF encoding).
+- **Enhanced Thumbnail Management:** Relocate thumbnail and cover art tools into the dedicated Images module, supporting batch extraction of frame thumbnails and automated multi-resolution artwork embedding.
 - **Advanced Video Upscaling:** Further optimization and hardware-accelerated pipelines for GPU-based 4K video upscaling.
 
 ## 🎞️ Advanced Media Splicing & Preview
