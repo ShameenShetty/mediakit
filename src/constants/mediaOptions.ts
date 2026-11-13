@@ -31,3 +31,4 @@ export const scaleOptions = [
 
 export const videoFormats = ['mp4', 'mkv', 'mov', 'webm'];
 export const audioFormats = ['mp3', 'm4a', 'wav', 'opus'];
+export const imageFormats = ['jpg', 'jpeg', 'avif', 'webp', 'png'];

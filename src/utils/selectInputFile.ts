@@ -1,40 +1,64 @@
 import { open } from '@tauri-apps/plugin-dialog';
-import { videoFormats, audioFormats } from '../constants/mediaOptions'
+import { videoFormats, audioFormats, imageFormats } from '../constants/mediaOptions';
 
-export type MediaType = 'video' | 'audio' | 'both';
+export type MediaType = 'video' | 'audio' | 'image' | 'all';
+
+interface InputFileProps {
+    mediaType?: MediaType[];
+    selectMultiple?: boolean;
+    selectDirectory?: boolean;
+}
 
 /**
- * Opens a native file dialog to select a media file.
- * @param mediaType - Restricts selection to 'video', 'audio', or 'both' (default: 'both')
+ * Opens a native file dialog to select a media file or files.
+ * 
+ * @param mediaType - Array of allowed media types (e.g., ['audio', 'video'], default: ['all'])
  */
-export const selectInputFile = async (mediaType: MediaType = 'both'): Promise<string | null> => {
+export const selectInputFile = async ({
+    mediaType = ['all'],
+    selectMultiple = false,
+    selectDirectory = false
+}: InputFileProps = {}): Promise<string | string[] | null> => {
+
+    if (mediaType.includes('all')) {
+        return await open({
+            multiple: selectMultiple,
+            directory: selectDirectory,
+            filters: [
+                {
+                    name: 'All Media',
+                    extensions: [...videoFormats, ...audioFormats, ...imageFormats]
+                }
+            ]
+        });
+    }
+
     const filters = [];
 
-    if (mediaType === 'video' || mediaType === 'both') {
+    if (mediaType.includes('video')) {
         filters.push({
             name: 'Video Files',
             extensions: videoFormats
         });
     }
 
-    if (mediaType === 'audio' || mediaType === 'both') {
+    if (mediaType.includes('audio')) {
         filters.push({
             name: 'Audio Files',
             extensions: audioFormats
         });
     }
 
-    // Optional: Add a combined "All Media" filter if 'both' is selected
-    if (mediaType === 'both') {
+    if (mediaType.includes('image')) {
         filters.push({
-            name: 'All Media',
-            extensions: [...videoFormats, ...audioFormats]
+            name: 'Image Files',
+            extensions: imageFormats
         });
     }
 
     return await open({
-        multiple: false,
-        directory: false,
+        multiple: selectMultiple,
+        directory: selectDirectory,
         filters
     });
 };

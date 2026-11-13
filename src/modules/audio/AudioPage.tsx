@@ -26,7 +26,7 @@ export function AudioPage() {
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
     async function handleSelectFile() {
-        const selected = await selectInputFile('both');
+        const selected = await selectInputFile({ mediaType: ['audio', 'video'] });
 
         if (selected && typeof selected === 'string') {
             setInputPath(selected);

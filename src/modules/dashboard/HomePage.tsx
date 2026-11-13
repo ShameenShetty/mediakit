@@ -49,7 +49,7 @@ export default function HomePage() {
     const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
     async function handleSelectFile() {
-        const selected = await selectInputFile('both');
+        const selected = await selectInputFile({ mediaType: ['all'] });
 
         if (selected && typeof selected === 'string') {
             setInputPath(selected);

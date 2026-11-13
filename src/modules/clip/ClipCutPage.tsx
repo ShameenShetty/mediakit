@@ -44,7 +44,7 @@ export function ClipCutPage() {
     const [eta, setEta] = useState<string>('Calculating...');
 
     const handleSelectInputFile = async () => {
-        const selected = await selectInputFile('both');
+        const selected = await selectInputFile({ mediaType: ['audio', 'video'] });
 
         if (selected && typeof selected === 'string') {
             setInputPath(selected);
