@@ -158,7 +158,7 @@ export default function HomePage() {
 
     return (
         <Stack p='lg' gap='md'>
-            <Center pb={10}><Title order={2}>MediaKit Workspace v20</Title></Center>
+            <Center pb={10}><Title order={2}>MediaKit Workspace v21</Title></Center>
 
             {/* 3-Step Pipeline Flow */}
             <Paper withBorder p='md' radius='md' mb='xl'>
@@ -307,11 +307,13 @@ export default function HomePage() {
                     {isProcessing ? 'Processing...' : 'Run Operation'}
                 </Button>
                 <Text size='sm' c={progress === 100 ? 'blue' : 'gray'}>
-                    {progress === 100 ? 'Completed' : `Progress: ${progress.toFixed(2)}% ETA: ${eta}`}
+                    {progress === 0 ? '' :
+                        progress === 100 ? 'Completed' :
+                            inputFileType === 'image' ? 'Processing...' : `Progress: ${progress.toFixed(2)}% ETA: ${eta}`}
                 </Text>
             </Group>
 
-            {progress > 0 && (
+            {(progress > 0 && inputFileType != 'image') && (
                 <Progress
                     h={16}
                     value={progress}
