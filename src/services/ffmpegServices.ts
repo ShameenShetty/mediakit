@@ -1,19 +1,21 @@
+import { inputFileTypes } from '../constants/mediaOptions';
+
 export interface BuildArgsOptions {
     inputPath: string;
     outputPath: string;
     operation: string;
     outputFormat: string;
-    isAudioFile: boolean;
+    fileType: inputFileTypes
     compressionMode: string;
     preset: string;
     crf: number;
 }
 
 export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
-    const { inputPath, outputPath, operation, outputFormat, isAudioFile, compressionMode, preset, crf } = options;
+    const { inputPath, outputPath, operation, outputFormat, fileType, compressionMode, preset, crf } = options;
     let args: string[] = ['-i', inputPath];
 
-    if (isAudioFile) {
+    if (fileType === 'audio') {
         args.push('-vn');
     }
 
@@ -21,7 +23,7 @@ export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
     // Conversion branch
     // --------------------------------------------------------
     if (operation === 'convert') {
-        if (isAudioFile) {
+        if (fileType === 'audio') {
             if (outputFormat === 'mp3') {
                 args.push('-c:a', 'libmp3lame', '-b:a', '192k');
             } else if (outputFormat === 'm4a') {
@@ -33,6 +35,26 @@ export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
                 args.push('-c:a', 'pcm_s16le');
             } else {
                 args.push('-c:a', 'aac');
+            }
+        } else if (fileType === 'image') {
+            // Image conversion branch dynamically mapped from the CRF slider (0 to 51)
+            if (outputFormat === 'jpg' || outputFormat === 'jpeg') {
+                // MJPEG -q:v scale: 1 (best quality) to 31 (lowest quality). Lower is better.
+                // Maps CRF 0 -> 1 and CRF 51 -> 31
+                const mjpegQuality = Math.max(1, Math.min(31, Math.round((crf / 51) * 30) + 1));
+                args.push('-c:v', 'mjpeg', '-q:v', mjpegQuality.toString());
+            } else if (outputFormat === 'png') {
+                // PNG compression_level: 0 (fast, larger file) to 9 (slow, max compression). Lossless.
+                // Maps CRF 0 -> 0 and CRF 51 -> 9
+                const pngLevel = Math.max(0, Math.min(9, Math.round((crf / 51) * 9)));
+                args.push('-c:v', 'png', '-compression_level', pngLevel.toString());
+            } else if (outputFormat === 'avif') {
+                // Swapped to libsvtav1 (or remove if your binary lacks AV1 encoders entirely).
+                // SVT-AV1 uses a CRF scale very close to 0-63, so we can map CRF directly.
+                const avifCrf = Math.max(0, Math.min(63, crf));
+                args.push('-c:v', 'libsvtav1', '-crf', avifCrf.toString(), '-pix_fmt', 'yuv420p');
+            } else {
+                args.push('-q:v', '2');
             }
         } else {
             // Video conversion branch
@@ -68,7 +90,9 @@ export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
     // Reencode branch
     // --------------------------------------------------------
     else if (operation === 'reencode') {
-        if (isAudioFile) {
+        // For image file reencode operation is filtered out so we can assume if input
+        // file is not audio file then it is a video file
+        if (fileType === 'audio') {
             args.push('-c:a', 'aac', '-b:a', '192k');
         } else {
             args.push('-c:v', 'libx264', '-preset', preset, '-crf', crf.toString(), '-c:a', 'aac');
@@ -85,8 +109,31 @@ export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
         if (compressionMode === 'low') { targetCrf = '21'; targetPreset = 'medium'; }
         if (compressionMode === 'high') { targetCrf = '30'; targetPreset = 'veryfast'; }
 
-        if (isAudioFile) {
+        if (fileType === 'audio') {
             args.push('-c:a', 'libmp3lame', '-b:a', compressionMode === 'high' ? '96k' : '128k');
+        } else if (fileType === 'image') {
+            // Image compression branch based on compression mode
+            if (outputFormat === 'jpg' || outputFormat === 'jpeg') {
+                // Map low/medium/high compression to JPEG quality scale (-q:v roughly 1-31, lower is better quality)
+                let jpgQuality = '5'; // default medium
+                if (compressionMode === 'low') jpgQuality = '2';
+                if (compressionMode === 'high') jpgQuality = '10';
+                args.push('-c:v', 'mjpeg', '-q:v', jpgQuality);
+            } else if (outputFormat === 'png') {
+                // PNG compression levels (0 to 9)
+                let pngLevel = '6'; // default medium
+                if (compressionMode === 'low') pngLevel = '3';
+                if (compressionMode === 'high') pngLevel = '9';
+                args.push('-c:v', 'png', '-compression_level', pngLevel);
+            } else if (outputFormat === 'avif') {
+                // SVT-AV1 CRF scale for compression (typically 0-63)
+                let avifCrf = '32';
+                if (compressionMode === 'low') avifCrf = '24';
+                if (compressionMode === 'high') avifCrf = '42';
+                args.push('-c:v', 'libsvtav1', '-crf', avifCrf, '-pix_fmt', 'yuv420p');
+            } else {
+                args.push('-q:v', targetCrf);
+            }
         } else {
             // Video compression branch with WebM/VP9 support
             if (outputFormat === 'webm') {
@@ -109,7 +156,9 @@ export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
                 args.push('-c:v', 'libx264', '-preset', targetPreset, '-crf', targetCrf, '-c:a', 'aac', '-b:a', '128k');
             }
         }
-    } else {
+    }
+
+    else {
         throw new Error(`Unsupported operation: ${operation}`);
     }
 

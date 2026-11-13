@@ -29,6 +29,7 @@ export const scaleOptions = [
     { label: '4K UHD', value: '3840:2160' },
 ];
 
+export type inputFileTypes = 'audio' | 'video' | 'image';
 export const videoFormats = ['mp4', 'mkv', 'mov', 'webm'];
 export const audioFormats = ['mp3', 'm4a', 'wav', 'opus'];
 export const imageFormats = ['jpg', 'jpeg', 'avif', 'webp', 'png'];

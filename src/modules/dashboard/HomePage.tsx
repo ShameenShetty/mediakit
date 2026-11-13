@@ -20,19 +20,20 @@ import { basename, dirname, extname, join } from '@tauri-apps/api/path';
 import { exists } from '@tauri-apps/plugin-fs';
 import { Command } from '@tauri-apps/plugin-shell';
 import { useState } from 'react';
-import { audioFormats, compressionPresets, encodingPresets, operations, videoFormats } from '../../constants/mediaOptions';
+import { audioFormats, compressionPresets, encodingPresets, imageFormats, inputFileTypes, operations, videoFormats } from '../../constants/mediaOptions';
 import { buildFfmpegArgs } from '../../services/ffmpegServices';
 import { calculateEta } from '../../utils/calculateEta';
 import { extractProgress } from '../../utils/extractProgress';
 import { extractSpeed } from '../../utils/extractSpeed';
 import { getDuration } from '../../utils/getDuration';
 import { selectInputFile } from '../../utils/selectInputFile';
+import { getInputFileType } from '../../utils/getInputFileType';
 
 export default function HomePage() {
     const [inputPath, setInputPath] = useState<string | null>(null);
     const [fileName, setFileName] = useState<string>('');
     const [fileExt, setFileExt] = useState<string>('');
-    const [isAudioFile, setIsAudioFile] = useState<boolean>(false);
+    const [inputFileType, setInputFileType] = useState<inputFileTypes>('audio');
 
     const [operation, setOperation] = useState<string>('convert');
     const [outputFormat, setOutputFormat] = useState<string>('mp4');
@@ -59,14 +60,17 @@ export default function HomePage() {
             setFileName(name);
             setFileExt(ext);
 
-            const isAudio = audioFormats.includes(ext);
-            setIsAudioFile(isAudio);
+            const fileType = getInputFileType(ext);
+            setInputFileType(fileType);
 
             if (operation === 'reencode' || operation === 'compress') {
                 setOutputFormat(ext);
             } else {
                 // Default convert target
-                setOutputFormat(isAudio ? (ext === 'mp3' ? 'm4a' : 'mp3') : (ext === 'mp4' ? 'mkv' : 'mp4'));
+                setOutputFormat(fileType === 'audio' ? (ext === 'mp3' ? 'm4a' : 'mp3') :
+                    fileType === 'video' ? (ext === 'mp4' ? 'mkv' : 'mp4') :
+                        (ext === 'jpg' ? 'png' : 'jpg')
+                );
             }
         }
     }
@@ -105,7 +109,7 @@ export default function HomePage() {
                 outputPath,
                 operation,
                 outputFormat,
-                isAudioFile,
+                fileType: inputFileType,
                 compressionMode,
                 preset,
                 crf
@@ -153,20 +157,21 @@ export default function HomePage() {
     }
 
     return (
-        <Stack p="lg" gap="md">
+        <Stack p='lg' gap='md'>
             <Center pb={10}><Title order={2}>MediaKit Workspace v19</Title></Center>
 
             {/* 3-Step Pipeline Flow */}
-            <Paper withBorder p="md" radius="md" mb="xl">
-                <Group align="flex-end" gap="md">
+            <Paper withBorder p='md' radius='md' mb='xl'>
+                <Group align='flex-end' gap='md'>
                     <Stack gap={4}>
-                        <Text size="sm" fw={500}>Input File</Text>
-                        <Button variant="default" onClick={handleSelectFile} w={180}>
+                        <Text size='sm' fw={500}>Input File</Text>
+                        <Button variant='default' onClick={handleSelectFile} w={180}>
                             {fileName ? fileName : 'Choose file...'}
                         </Button>
                     </Stack>
                     <IconArrowRight size={22} style={{ marginBottom: 10 }} />
 
+                    {/* Operation Select */}
                     <Select
                         label={
                             <Group gap='4'>
@@ -175,7 +180,7 @@ export default function HomePage() {
                                     multiline
                                     w={260}
                                     withArrow
-                                    position="top"
+                                    position='top'
                                     label={
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                             <div>• <b>Convert</b>: Transcodes audio and video streams into your chosen target format.</div>
@@ -194,7 +199,8 @@ export default function HomePage() {
                             </Group>
                         }
                         w={120}
-                        data={operations}
+                        // Re-encode doesn't make sense for images so we filter it out
+                        data={inputFileType !== 'image' ? operations : operations.filter(f => f.value !== 'reencode')}
                         value={operation}
                         onChange={(val) => {
                             if (val) {
@@ -202,7 +208,10 @@ export default function HomePage() {
                                 if ((val === 'reencode' || val === 'compress') && inputPath) {
                                     setOutputFormat(fileExt);
                                 } else if (val === 'convert' && inputPath) {
-                                    setOutputFormat(isAudioFile ? 'mp3' : 'mp4');
+                                    setOutputFormat(
+                                        inputFileType === 'audio' ? 'mp3' :
+                                            inputFileType === 'video' ? 'mp4' : 'jpg'
+                                    );
                                 }
                             }
                         }}
@@ -211,7 +220,7 @@ export default function HomePage() {
                     <IconArrowRight size={22} style={{ marginBottom: 10 }} />
                     {operation === 'compress' ? (
                         <Select
-                            label="Compression Level"
+                            label='Compression Level'
                             w={180}
                             data={compressionPresets}
                             value={compressionMode}
@@ -219,18 +228,22 @@ export default function HomePage() {
                         />
                     ) : (
                         <Select
-                            key={isAudioFile ? 'audio-formats' : 'video-formats'}
-                            label="Output Format"
+                            key={`${inputFileType}-formats`}
+                            label='Output Format'
                             w={180}
                             disabled={operation === 'reencode'}
-                            data={isAudioFile ?
+                            data={inputFileType === 'audio' ?
                                 audioFormats.filter(f => f !== fileExt) :
-                                videoFormats.filter(f => f !== fileExt)}
+                                inputFileType === 'video' ?
+                                    videoFormats.filter(f => f !== fileExt) :
+                                    // Filter out 'webp' for images since the binary doesn't support libwebp encoding
+                                    imageFormats.filter(f => f !== fileExt && f !== 'webp')
+                            }
                             value={outputFormat}
                             onChange={(val) => val && setOutputFormat(val)}
                         />
                     )}
-                    <Tooltip label="Show advanced options">
+                    <Tooltip label='Show advanced options'>
                         <ActionIcon
                             variant={showAdvanced ? 'filled' : 'default'}
                             size={36}
@@ -245,21 +258,21 @@ export default function HomePage() {
 
             {/* Advanced Settings Collapse (Preset & CRF Slider) */}
             <Collapse expanded={showAdvanced}>
-                <Stack p="md" bg="var(--mantine-color-default-hover)" style={{ borderRadius: 8 }} gap="sm">
-                    <Text size="sm" fw={600}>Advanced Encoding Options</Text>
+                <Stack p='md' bg='var(--mantine-color-default-hover)' style={{ borderRadius: 8 }} gap='sm'>
+                    <Text size='sm' fw={600}>Advanced Encoding Options</Text>
                     <Group grow>
                         <Select
-                            label="Preset"
+                            label='Preset'
                             data={encodingPresets}
                             value={preset}
                             onChange={(val) => val && setPreset(val)}
                         />
                         <Stack gap={4}>
-                            <Group gap="xs" align="center">
-                                <Text size="sm" fw={500}>CRF Quality: {crf}</Text>
+                            <Group gap='xs' align='center'>
+                                <Text size='sm' fw={500}>CRF Quality: {crf}</Text>
 
                                 <Tooltip
-                                    label="CRF (Constant Rate Factor) controls quality for CPU encoding (range 0-51, where lower is better). A setting of 23-28 provides the ideal sweet spot between visual fidelity and file size."
+                                    label='CRF (Constant Rate Factor) controls quality for CPU encoding (range 0-51, where lower is better). A setting of 23-28 provides the ideal sweet spot between visual fidelity and file size.'
                                     multiline
                                     w={260}
                                     withArrow
@@ -282,18 +295,18 @@ export default function HomePage() {
                 </Stack>
             </Collapse>
 
-            <Divider my="sm" />
+            <Divider my='sm' />
 
             {/* Action & Progress */}
             <Group>
                 <Button
-                    color="blue"
+                    color='blue'
                     onClick={handleRun}
                     disabled={!inputPath || isProcessing}
                 >
                     {isProcessing ? 'Processing...' : 'Run Operation'}
                 </Button>
-                <Text size="sm" c={progress === 100 ? 'blue' : 'gray'}>
+                <Text size='sm' c={progress === 100 ? 'blue' : 'gray'}>
                     {progress === 100 ? 'Completed' : `Progress: ${progress.toFixed(2)}% ETA: ${eta}`}
                 </Text>
             </Group>
