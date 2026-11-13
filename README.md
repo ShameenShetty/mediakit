@@ -8,6 +8,7 @@ Inspired by clean, modular interfaces, MediaKit is designed as a fast, frictionl
 
 MediaKit has achieved 100% feature migration from legacy Bash automation scripts into a robust, high-performance local-first desktop application:
 
+- **Image Conversion & Compression:** Effortlessly convert and compress static images across standard web formats (`.jpg`, `.jpeg`, `.png`, `.avif`) using optimized encoder mappings and real-time processing pipelines.
 - **Clip & Cut Toolkit:** Fast stream-copy video/audio cutting using flexible timecode inputs (supporting raw seconds or `HH:MM:SS` formats) with in-app validation.
 - **Audio Toolkit:** Extract audio tracks, boost volume levels, and mute or remove audio from media files.
 - **Thumbnails & Artwork:** Extract frame thumbnails from video files or embed custom image artwork.
