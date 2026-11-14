@@ -23,6 +23,27 @@ export const encodingPresets = [
     { label: 'Slow', value: 'slow' },
 ];
 
+export const encodingEffort = [
+    { label: 'Fast (Quickest, Larger File)', value: 'veryfast' },
+    { label: 'Balanced (Recommended)', value: 'medium' },
+    { label: 'Thorough (Smaller File)', value: 'slow' },
+    { label: 'Maximum Compression (Slowest)', value: 'veryslow' },
+];
+
+export const videoQualityOptions = [
+    { label: 'Visually Lossless', value: '18' },
+    { label: 'Balanced', value: '23' },
+    { label: 'Compressed', value: '30' },
+    { label: 'Maximum Compression', value: '40' },
+];
+
+export const upscaleQualityOptions = [
+    { label: 'Maximum Quality (Sharper Details)', value: '85' },
+    { label: 'Balanced (Recommended)', value: '50' },
+    { label: 'Compressed', value: '35' },
+    { label: 'Maximum Compression', value: '20' },
+];
+
 export const scaleOptions = [
     { label: '1080p Full HD', value: '1920:1080' },
     { label: '1440p QHD', value: '2560:1440' },

@@ -1,7 +1,7 @@
 [package]
 name = "mediaKit"
-version = "0.1.0"
-description = "A Tauri App"
+version = "1.0.0"
+description = "A high-performance, local-first cross-platform desktop application for media conversion, compression, cutting, and upscaling powered by Tauri and FFmpeg."
 authors = ["you"]
 edition = "2024"
 

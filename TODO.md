@@ -2,6 +2,35 @@
 
 Tracked technical debt, architectural optimizations, and future enhancements across the MediaKit codebase.
 
+## 📄 UI & Service Refactoring TODO: Simplifying Encoding Controls
+
+### 1. UI Component Refactoring (Components & Layout)
+- [ ] **Remove "Advanced Options" Collapsible/Accordion Wrapper:** 
+  - Promote quality and effort selectors out of hidden drawers so they are visible by default in the main workflow card.
+- [ ] **Replace CRF & Preset Sliders:**
+  - **Video/Upscale:** Replace the 0–51 CRF slider and numeric quality sliders with a clean Mantine `<Select>` component for **Quality** (*Balanced*, *High Quality*, *Maximum Compression*) as well updating the help tooltip.
+  - **Video Preset:** Replace the `veryfast`/`slow` preset selector with a dropdown for **Encoding Effort** (*Fast*, *Balanced*, *Maximum Compression*) as well updating the help tooltip.
+- [ ] **Update State Management Hooks:**
+  - Update `HomePage.tsx`, `UpscalePage.tsx`, and associated state hooks to store string tokens (`'balanced'`, `'high'`, `'compressed'`) instead of raw numbers.
+
+### 2. Backend Service Remapping (`ffmpegServices.ts` & Upscale Services)
+- [ ] **Map Video Quality Dropdown Tokens to Encoders:**
+  - Map `'balanced'` $\rightarrow$ CRF `23` (H.264 / VP9) or quality `50` (VideoToolbox).
+  - Map `'high'` $\rightarrow$ CRF `18` (H.264 / VP9) or quality `75` (VideoToolbox).
+  - Map `'compressed'` $\rightarrow$ CRF `28` (H.264 / VP9) or quality `30` (VideoToolbox).
+- [ ] **Map Encoding Effort Dropdown Tokens to Presets / CPU Threads:**
+  - Map `'fast'` $\rightarrow$ Preset `veryfast` (H.264) / `-cpu-used 4` (VP9).
+  - Map `'balanced'` $\rightarrow$ Preset `medium` (H.264) / `-cpu-used 2` (VP9).
+  - Map `'maximum'` $\rightarrow$ Preset `slow` (H.264) / `-cpu-used 0` (VP9) for maximum compression efficiency.
+- [ ] **Update Image Conversion & Compression Mappings:**
+  - Ensure image quality dropdown selections correctly map to mathematical ranges for MJPEG (`-q:v`), PNG (`-compression_level`), and AVIF (`-crf`).
+
+### 3. Testing & Verification
+- [ ] **Verify End-to-End Command Building:**
+  - Unit test `buildFfmpegArgs` to ensure selected dropdown labels correctly translate to valid CLI argument arrays without throwing undefined parameter errors.
+- [ ] **UI Polish & Responsiveness:**
+  - Verify that inline selectors fit gracefully across different window sizes in the Tauri desktop layout.
+
 ## 📄 `ClipCutPage.tsx`
 
 - **Advanced Media Splicing & Preview**

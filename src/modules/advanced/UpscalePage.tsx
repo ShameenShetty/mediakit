@@ -1,12 +1,12 @@
-import { ActionIcon, Alert, Button, Center, Collapse, Divider, Group, Progress, Select, Slider, Stack, Text, Title, Tooltip } from '@mantine/core';
+import { ActionIcon, Alert, Button, Center, Divider, Group, Progress, Select, Stack, Text, Title, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconAlertTriangle, IconArrowRight, IconHelp, IconSettings } from '@tabler/icons-react';
+import { IconAlertTriangle, IconArrowRight, IconHelp } from '@tabler/icons-react';
 import { invoke } from '@tauri-apps/api/core';
 import { basename, dirname, extname } from '@tauri-apps/api/path';
 import { open } from '@tauri-apps/plugin-dialog';
 import { Command } from '@tauri-apps/plugin-shell';
 import { useEffect, useState } from 'react';
-import { scaleOptions, videoFormats } from '../../constants/mediaOptions';
+import { scaleOptions, upscaleQualityOptions, videoFormats } from '../../constants/mediaOptions';
 import { buildUpscaleArgs } from '../../services/upscaleServices';
 import { calculateEta } from '../../utils/calculateEta';
 import { extractProgress } from '../../utils/extractProgress';
@@ -17,7 +17,6 @@ export function UpscalePage() {
     const [inputPath, setInputPath] = useState<string | null>(null);
     const [fileName, setFileName] = useState<string>('');
     const [fileExt, setFileExt] = useState<string>('');
-    const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
     const [scale, setScale] = useState<typeof scaleOptions[number]['value']>('2560:1440');
     const [qv, setQv] = useState<number>(50);
     const [encoder, setEncoder] = useState<string | null>(null);
@@ -174,17 +173,6 @@ export function UpscalePage() {
                         Upscale
                     </Button>
                 </Stack>
-
-                <Tooltip label="Show advanced options">
-                    <ActionIcon
-                        variant={showAdvanced ? 'filled' : 'default'}
-                        size={36}
-                        onClick={() => setShowAdvanced((prev) => !prev)}
-                        style={{ marginBottom: 2 }}
-                    >
-                        <IconSettings size={20} />
-                    </ActionIcon>
-                </Tooltip>
             </Group>
 
             {encoder === 'libx265' && (
@@ -198,36 +186,33 @@ export function UpscalePage() {
                 </Alert>
             )}
 
-            <Collapse expanded={showAdvanced}>
-                <Stack p="md" bg="var(--mantine-color-default-hover)" style={{ borderRadius: 8 }} gap="sm">
-                    <Text size="sm" fw={600}>Advanced Upscaling Options</Text>
-
-                    <Stack gap={4}>
-                        <Group gap="xs" align="center">
-                            <Text size="sm" fw={500}>QV Quality:</Text>
-
-                            <Tooltip
-                                label="QV (-q:v) controls hardware encoding quality for Apple VideoToolbox (range 1-100, higher is better). Default (50) offers the best balance between 4K upscale details and manageable file sizes."
-                                multiline
-                                w={260}
-                                withArrow
-                            >
-                                <IconHelp
-                                    size={16}
-                                    style={{ cursor: 'help', color: 'var(--mantine-color-dimmed)' }}
-                                />
-                            </Tooltip>
-                        </Group>
-                        <Slider
-                            min={0}
-                            max={100}
-                            value={qv}
-                            onChange={setQv}
-                            label={(val) => `${val} (Higher is better)`}
-                        />
-                    </Stack>
-                </Stack>
-            </Collapse>
+            <Select
+                w={280}
+                label={
+                    <Group gap={6}>
+                        <span>Upscale Output Quality</span>
+                        <Tooltip
+                            multiline
+                            w={250}
+                            label={
+                                <Stack gap={4}>
+                                    <span>Controls upscale output quality and compression.</span>
+                                    <span>• <b>Maximum Quality:</b> Sharper details, larger file.</span>
+                                    <span>• <b>Balanced:</b> Ideal default sweet spot.</span>
+                                    <span>• <b>Compressed / Max:</b> Smaller file size.</span>
+                                </Stack>
+                            }
+                        >
+                            <ActionIcon size="xs" variant="subtle" color="gray">
+                                <IconHelp size={14} />
+                            </ActionIcon>
+                        </Tooltip>
+                    </Group>
+                }
+                data={upscaleQualityOptions}
+                value={qv.toString()}
+                onChange={(val) => val && setQv(Number(val))}
+            />
 
             <Divider my="sm" />
             <Text size="sm" c={progress === 100 ? 'blue' : 'gray'}>

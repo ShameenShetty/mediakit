@@ -3,7 +3,6 @@ import {
     IconHome,
     IconPhoto,
     IconScissors,
-    IconSettings,
     IconSparkles,
     IconVolume
 } from '@tabler/icons-react';
@@ -136,7 +135,7 @@ export default function AppLayout() {
                 </Stack>
 
                 {/* Settings at the bottom */}
-                <Box pt="md" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
+                {/* <Box pt="md" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
                     <NavLink
                         component={Link}
                         to="/settings"
@@ -145,7 +144,7 @@ export default function AppLayout() {
                         label={<NavLabel text="Settings" />}
                         title="Settings"
                     />
-                </Box>
+                </Box> */}
             </AppShell.Navbar>
 
             <AppShell.Main style={{ overflowX: 'auto', minHeight: '100vh' }}>

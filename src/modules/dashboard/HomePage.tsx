@@ -2,32 +2,30 @@ import {
     ActionIcon,
     Button,
     Center,
-    Collapse,
     Divider,
     Group,
     Paper,
     Progress,
     Select,
-    Slider,
     Stack,
     Text,
     Title,
     Tooltip
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconArrowRight, IconHelp, IconSettings } from '@tabler/icons-react';
+import { IconArrowRight, IconHelp } from '@tabler/icons-react';
 import { basename, dirname, extname, join } from '@tauri-apps/api/path';
 import { exists } from '@tauri-apps/plugin-fs';
 import { Command } from '@tauri-apps/plugin-shell';
 import { useState } from 'react';
-import { audioFormats, compressionPresets, encodingPresets, imageFormats, inputFileTypes, operations, videoFormats } from '../../constants/mediaOptions';
+import { audioFormats, compressionPresets, encodingEffort, imageFormats, inputFileTypes, operations, videoFormats, videoQualityOptions } from '../../constants/mediaOptions';
 import { buildFfmpegArgs } from '../../services/ffmpegServices';
 import { calculateEta } from '../../utils/calculateEta';
 import { extractProgress } from '../../utils/extractProgress';
 import { extractSpeed } from '../../utils/extractSpeed';
 import { getDuration } from '../../utils/getDuration';
-import { selectInputFile } from '../../utils/selectInputFile';
 import { getInputFileType } from '../../utils/getInputFileType';
+import { selectInputFile } from '../../utils/selectInputFile';
 
 export default function HomePage() {
     const [inputPath, setInputPath] = useState<string | null>(null);
@@ -40,9 +38,8 @@ export default function HomePage() {
     const [compressionMode, setCompressionMode] = useState<string>('balanced');
 
     // Advanced settings state
-    const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
     const [preset, setPreset] = useState<string>('medium');
-    const [crf, setCrf] = useState<number>(23);
+    const [crf, setCrf] = useState('23');
 
     const [progress, setProgress] = useState<number>(0);
     const [_, setSpeed] = useState<number>(0);
@@ -112,7 +109,7 @@ export default function HomePage() {
                 fileType: inputFileType,
                 compressionMode,
                 preset,
-                crf
+                crf: Number(crf)
             });
 
             console.log('Running operation:', { inputPath, operation, outputFormat, compressionMode, preset, crf });
@@ -158,7 +155,7 @@ export default function HomePage() {
 
     return (
         <Stack p='lg' gap='md'>
-            <Center pb={10}><Title order={2}>MediaKit Workspace v21</Title></Center>
+            <Center pb={10}><Title order={2}>MediaKit Workspace</Title></Center>
 
             {/* 3-Step Pipeline Flow */}
             <Paper withBorder p='md' radius='md' mb='xl'>
@@ -243,57 +240,67 @@ export default function HomePage() {
                             onChange={(val) => val && setOutputFormat(val)}
                         />
                     )}
-                    <Tooltip label='Show advanced options'>
-                        <ActionIcon
-                            variant={showAdvanced ? 'filled' : 'default'}
-                            size={36}
-                            onClick={() => setShowAdvanced((prev) => !prev)}
-                            style={{ marginBottom: 2 }}
-                        >
-                            <IconSettings size={20} />
-                        </ActionIcon>
-                    </Tooltip>
                 </Group>
             </Paper>
 
-            {/* Advanced Settings Collapse (Preset & CRF Slider) */}
-            <Collapse expanded={showAdvanced}>
-                <Stack p='md' bg='var(--mantine-color-default-hover)' style={{ borderRadius: 8 }} gap='sm'>
-                    <Text size='sm' fw={600}>Advanced Encoding Options</Text>
-                    <Group grow>
-                        <Select
-                            label='Preset'
-                            data={encodingPresets}
-                            value={preset}
-                            onChange={(val) => val && setPreset(val)}
-                        />
-                        <Stack gap={4}>
-                            <Group gap='xs' align='center'>
-                                <Text size='sm' fw={500}>CRF Quality: {crf}</Text>
-
+            {/* Encoding Options */}
+            <Stack px='md' bg='var(--mantine-color-default-hover)' style={{ borderRadius: 8 }} gap='sm'>
+                <Text size='sm' fw={600}>Encoding Options</Text>
+                <Group grow>
+                    <Select
+                        label={
+                            <Group gap={6}>
+                                <span>Encoding Effort</span>
                                 <Tooltip
-                                    label='CRF (Constant Rate Factor) controls quality for CPU encoding (range 0-51, where lower is better). A setting of 23-28 provides the ideal sweet spot between visual fidelity and file size.'
                                     multiline
-                                    w={260}
-                                    withArrow
+                                    w={250}
+                                    label={
+                                        <Stack gap={4}>
+                                            <span>Controls how hard the encoder works to compress the file.</span>
+                                            <span>• <b>Faster:</b> Reduces time, larger file.</span>
+                                            <span>• <b>Thorough:</b> Smaller file, higher CPU usage.</span>
+                                        </Stack>
+                                    }
                                 >
-                                    <IconHelp
-                                        size={16}
-                                        style={{ cursor: 'help', color: 'var(--mantine-color-dimmed)' }}
-                                    />
+                                    <ActionIcon size="xs" variant="subtle" color="gray">
+                                        <IconHelp size={14} />
+                                    </ActionIcon>
                                 </Tooltip>
                             </Group>
-                            <Slider
-                                min={0}
-                                max={51}
-                                value={crf}
-                                onChange={setCrf}
-                                label={(val) => `${val} (Lower is better)`}
-                            />
-                        </Stack>
-                    </Group>
-                </Stack>
-            </Collapse>
+                        }
+                        data={encodingEffort}
+                        value={preset}
+                        onChange={(val) => val && setPreset(val)}
+                    />
+
+                    <Select
+                        label={
+                            <Group gap={6}>
+                                <span>Output Quality</span>
+                                <Tooltip
+                                    multiline
+                                    w={250}
+                                    label={
+                                        <Stack gap={4}>
+                                            <span>Determines visual fidelity and file size.</span>
+                                            <span>• <b>Lossless:</b> Maximum detail.</span>
+                                            <span>• <b>Balanced:</b> Ideal sweet spot.</span>
+                                            <span>• <b>Compressed:</b> Smaller size.</span>
+                                        </Stack>
+                                    }
+                                >
+                                    <ActionIcon size="xs" variant="subtle" color="gray">
+                                        <IconHelp size={14} />
+                                    </ActionIcon>
+                                </Tooltip>
+                            </Group>
+                        }
+                        data={videoQualityOptions}
+                        value={crf}
+                        onChange={(val) => val && setCrf(val)}
+                    />
+                </Group>
+            </Stack>
 
             <Divider my='sm' />
 
