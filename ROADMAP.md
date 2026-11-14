@@ -23,3 +23,10 @@ Future milestones and planned architectural enhancements for MediaKit:
 - **Global State Persistence & Background Jobs:** Integrate a global state management layer (such as Zustand) to persist active transcoding and utility processes in the background, preventing UI resets when navigating between pages.
 - **Batch Processing Queue:** Queue and process multiple files concurrently with unified progress tracking across all toolkits.
 - **Container Metadata & Artwork Preservation:** Robust handling of container-specific quirks to preserve or strip/re-attach embedded cover art and thumbnail streams (ID3 APIC tags for MP3s, secondary video streams for M4A/MP4 containers) during format conversions and re-encoding passes.
+
+## 🧪 Custom Advanced Recipes (Power User Module)
+
+- **Custom FFmpeg Argument Builder:** Provide an advanced workspace for power users to write and execute raw custom FFmpeg command-line flag arrays (e.g., custom encoders, specialized pixel formats, bitrate caps).
+- **Template Variable Substitution:** Support dynamic placeholders like `$INPUT` and `$OUTPUT` to seamlessly integrate custom argument strings into the Tauri execution pipeline.
+- **Recipe Management & Persistence:** Allow users to save, name, describe, and load custom argument combinations as reusable "Recipes" stored locally.
+- **Recipe Integration Across Toolkits:** Enable users to select saved recipes directly from standard operation dropdowns for extensible, customized media processing.
