@@ -16,13 +16,6 @@ export const compressionPresets = [
     { label: 'High Compression', value: 'high' },
 ];
 
-export const encodingPresets = [
-    { label: 'Very Fast', value: 'veryfast' },
-    { label: 'Fast', value: 'fast' },
-    { label: 'Medium', value: 'medium' },
-    { label: 'Slow', value: 'slow' },
-];
-
 export const encodingEffort = [
     { label: 'Fast (Quickest, Larger File)', value: 'veryfast' },
     { label: 'Balanced (Recommended)', value: 'medium' },

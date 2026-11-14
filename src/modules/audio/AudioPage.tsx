@@ -11,6 +11,7 @@ import { calculateEta } from '../../utils/calculateEta';
 import { extractProgress } from '../../utils/extractProgress';
 import { extractSpeed } from '../../utils/extractSpeed';
 import { getDuration } from '../../utils/getDuration';
+import { getOutputFileName } from '../../utils/getOutputFileName';
 
 export function AudioPage() {
     const [inputPath, setInputPath] = useState<string | null>(null);
@@ -61,7 +62,6 @@ export function AudioPage() {
         try {
             const duration = await getDuration(inputPath);
             const parentDir = await dirname(inputPath);
-            const baseName = fileName.slice(0, -(fileExt.length + 1));
 
             // Determine output suffix and container based on operation
             let suffix = 'processed';
@@ -76,7 +76,8 @@ export function AudioPage() {
                 suffix = 'muted';
             }
 
-            const outputPath = `${parentDir}/${baseName}_${suffix}.${targetExt}`;
+            // Generate a unique output path with collision handling and custom extension support
+            const outputPath = await getOutputFileName(inputPath, parentDir, `_${suffix}`, targetExt);
             console.log('Output path - ', outputPath);
 
             const args = buildAudioArgs({

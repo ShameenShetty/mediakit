@@ -2,7 +2,7 @@ import { ActionIcon, Alert, Button, Center, Divider, Group, Progress, Select, St
 import { notifications } from '@mantine/notifications';
 import { IconAlertTriangle, IconArrowRight, IconHelp } from '@tabler/icons-react';
 import { invoke } from '@tauri-apps/api/core';
-import { basename, dirname, extname } from '@tauri-apps/api/path';
+import { basename, dirname } from '@tauri-apps/api/path';
 import { open } from '@tauri-apps/plugin-dialog';
 import { Command } from '@tauri-apps/plugin-shell';
 import { useEffect, useState } from 'react';
@@ -12,11 +12,11 @@ import { calculateEta } from '../../utils/calculateEta';
 import { extractProgress } from '../../utils/extractProgress';
 import { extractSpeed } from '../../utils/extractSpeed';
 import { getDuration } from '../../utils/getDuration';
+import { getOutputFileName } from '../../utils/getOutputFileName';
 
 export function UpscalePage() {
     const [inputPath, setInputPath] = useState<string | null>(null);
     const [fileName, setFileName] = useState<string>('');
-    const [fileExt, setFileExt] = useState<string>('');
     const [scale, setScale] = useState<typeof scaleOptions[number]['value']>('2560:1440');
     const [qv, setQv] = useState<number>(50);
     const [encoder, setEncoder] = useState<string | null>(null);
@@ -58,7 +58,6 @@ export function UpscalePage() {
 
         setInputPath(inputPath);
         setFileName(await basename(inputPath));
-        setFileExt(await extname(inputPath));
     }
 
     async function handleUpscale() {
@@ -75,11 +74,11 @@ export function UpscalePage() {
         try {
             const duration = await getDuration(inputPath);
             const parentDir = await dirname(inputPath);
-            const baseName = fileName.slice(0, -(fileExt.length + 1));
 
-            const outputPath = `${parentDir}/${baseName}_upscaled.${fileExt}`;
+            // Generate a unique output path using the utility function to prevent file collision
+            const outputPath = await getOutputFileName(inputPath, parentDir, '_upscaled');
 
-            console.log('Output path - ', outputPath)
+            console.log('Output path - ', outputPath);
 
             let args: string[] = buildUpscaleArgs({
                 inputPath: inputPath,

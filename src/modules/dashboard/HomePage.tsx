@@ -14,8 +14,7 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconArrowRight, IconHelp } from '@tabler/icons-react';
-import { basename, dirname, extname, join } from '@tauri-apps/api/path';
-import { exists } from '@tauri-apps/plugin-fs';
+import { basename, dirname, extname } from '@tauri-apps/api/path';
 import { Command } from '@tauri-apps/plugin-shell';
 import { useState } from 'react';
 import { audioFormats, compressionPresets, encodingEffort, imageFormats, inputFileTypes, operations, videoFormats, videoQualityOptions } from '../../constants/mediaOptions';
@@ -25,6 +24,7 @@ import { extractProgress } from '../../utils/extractProgress';
 import { extractSpeed } from '../../utils/extractSpeed';
 import { getDuration } from '../../utils/getDuration';
 import { getInputFileType } from '../../utils/getInputFileType';
+import { getOutputFileName } from '../../utils/getOutputFileName';
 import { selectInputFile } from '../../utils/selectInputFile';
 
 export default function HomePage() {
@@ -86,20 +86,12 @@ export default function HomePage() {
         try {
             const duration = await getDuration(inputPath);
             const parentDir = await dirname(inputPath);
-            const baseName = fileName.slice(0, -(fileExt.length + 1));
 
             let endName = '';
             operation === 'reencode' ? endName = 'reencoded' : endName = operation + 'ed';
 
-            let outputPath = await join(parentDir, `${baseName}_${endName}.${outputFormat}`);
-            let existingFile = true;
-
-            let count = 1;
-            while (existingFile) {
-                existingFile = await exists(outputPath)
-                if (existingFile) outputPath = await join(parentDir, `${baseName}_${endName} (${count}).${outputFormat}`);
-                count++;
-            }
+            // Generate a unique output path using the utility function to prevent file collision
+            const outputPath = await getOutputFileName(inputPath, parentDir, `_${endName}`);
 
             let args: string[] = buildFfmpegArgs({
                 inputPath,

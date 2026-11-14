@@ -22,6 +22,7 @@ import { calculateEta } from '../../utils/calculateEta';
 import { extractProgress } from '../../utils/extractProgress';
 import { extractSpeed } from '../../utils/extractSpeed';
 import { getDuration } from '../../utils/getDuration';
+import { getOutputFileName } from '../../utils/getOutputFileName';
 
 const thumbnailOperations = [
     { value: 'get-thumbnail', label: 'Get Thumbnail (Extract)' },
@@ -94,7 +95,6 @@ export function ThumbnailPage() {
             // For duration-based progress calculation if input is video/audio
             const duration = isAudioFile ? 5.0 : await getDuration(inputPath);
             const parentDir = await dirname(inputPath);
-            const baseName = fileName.slice(0, -(fileExt.length + 1));
 
             // Determine output path & extension
             let suffix = 'thumbnail';
@@ -107,7 +107,8 @@ export function ThumbnailPage() {
                 suffix = 'embedded';
             }
 
-            const outputPath = `${parentDir}/${baseName}_${suffix}.${targetExt}`;
+            // Generate a unique output path with collision handling and custom extension support
+            const outputPath = await getOutputFileName(inputPath, parentDir, `_${suffix}`, targetExt);
             console.log('Thumbnail Output Path - ', outputPath);
 
             const args = buildThumbnailArgs({

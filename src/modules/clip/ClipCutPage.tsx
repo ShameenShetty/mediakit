@@ -19,13 +19,13 @@ import { calculateEta } from '../../utils/calculateEta';
 import { extractProgress } from '../../utils/extractProgress';
 import { extractSpeed } from '../../utils/extractSpeed';
 import { getDuration } from '../../utils/getDuration';
+import { getOutputFileName } from '../../utils/getOutputFileName';
 import { selectInputFile } from '../../utils/selectInputFile';
-import { parseTimeToSeconds, formatSecondsToTimecode } from '../../utils/timeParser';
+import { formatSecondsToTimecode, parseTimeToSeconds } from '../../utils/timeParser';
 
 export function ClipCutPage() {
     const [inputPath, setInputPath] = useState<string>('');
     const [fileName, setFileName] = useState<string>('');
-    const [fileExt, setFileExt] = useState<string>('');
     const [isAudioFile, setIsAudioFile] = useState<boolean>(false);
     const [fileDuration, setFileDuration] = useState<number>(0);
 
@@ -52,7 +52,6 @@ export function ClipCutPage() {
             const ext = (await extname(selected)).toLowerCase();
 
             setFileName(name);
-            setFileExt(ext);
             const isAudio = audioFormats.includes(ext);
             setIsAudioFile(isAudio);
 
@@ -87,9 +86,9 @@ export function ClipCutPage() {
         try {
             const clipDuration = endTimeSec - startTimeSec;
             const parentDir = await dirname(inputPath);
-            const baseName = fileName.slice(0, -(fileExt.length + 1));
-            const outputPath = `${parentDir}/${baseName}_clipped.${fileExt}`;
 
+            // Generate a unique output path using the utility function to prevent file collision
+            const outputPath = await getOutputFileName(inputPath, parentDir, '_clipped');
             console.log('Clip Output Path - ', outputPath);
 
             const args = buildClipArgs({
