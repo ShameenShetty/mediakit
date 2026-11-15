@@ -17,13 +17,13 @@ export const compressionPresets = [
 ];
 
 export const encodingEffort = [
-    { label: 'Fast (Quickest, Larger File)', value: 'veryfast' },
+    { label: 'Fastest (Quickest, Larger File)', value: 'veryfast' },
+    { label: 'Fast (Quicker)', value: 'fast' },
     { label: 'Balanced (Recommended)', value: 'medium' },
     { label: 'Thorough (Smaller File)', value: 'slow' },
-    { label: 'Maximum Compression (Slowest)', value: 'veryslow' },
 ];
 
-export const videoQualityOptions = [
+export const outputQualityOptions = [
     { label: 'Visually Lossless', value: '18' },
     { label: 'Balanced', value: '23' },
     { label: 'Compressed', value: '30' },

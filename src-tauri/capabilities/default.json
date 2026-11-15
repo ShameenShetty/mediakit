@@ -23,14 +23,9 @@
           "name": "binaries/ffprobe",
           "sidecar": true,
           "args": true
-        }
-      ]
-    },
-    {
-      "identifier": "shell:allow-execute",
-      "allow": [
+        },
         {
-          "name": "binaries/ffprobe",
+          "name": "binaries/magick",
           "sidecar": true,
           "args": true
         }
@@ -40,7 +35,7 @@
       "identifier": "shell:allow-execute",
       "allow": [
         {
-          "name": "binaries/magick",
+          "name": "binaries/ffprobe",
           "sidecar": true,
           "args": true
         }

@@ -111,29 +111,6 @@ export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
 
         if (fileType === 'audio') {
             args.push('-c:a', 'libmp3lame', '-b:a', compressionMode === 'high' ? '96k' : '128k');
-        } else if (fileType === 'image') {
-            // Image compression branch based on compression mode
-            if (outputFormat === 'jpg' || outputFormat === 'jpeg') {
-                // Map low/medium/high compression to JPEG quality scale (-q:v roughly 1-31, lower is better quality)
-                let jpgQuality = '5'; // default medium
-                if (compressionMode === 'low') jpgQuality = '2';
-                if (compressionMode === 'high') jpgQuality = '10';
-                args.push('-c:v', 'mjpeg', '-q:v', jpgQuality);
-            } else if (outputFormat === 'png') {
-                // PNG compression levels (0 to 9)
-                let pngLevel = '6'; // default medium
-                if (compressionMode === 'low') pngLevel = '3';
-                if (compressionMode === 'high') pngLevel = '9';
-                args.push('-c:v', 'png', '-compression_level', pngLevel);
-            } else if (outputFormat === 'avif') {
-                // SVT-AV1 CRF scale for compression (typically 0-63)
-                let avifCrf = '32';
-                if (compressionMode === 'low') avifCrf = '24';
-                if (compressionMode === 'high') avifCrf = '42';
-                args.push('-c:v', 'libsvtav1', '-crf', avifCrf, '-pix_fmt', 'yuv420p');
-            } else {
-                args.push('-q:v', targetCrf);
-            }
         } else {
             // Video compression branch with WebM/VP9 support
             if (outputFormat === 'webm') {

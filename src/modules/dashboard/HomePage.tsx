@@ -17,7 +17,7 @@ import { IconArrowRight, IconHelp } from '@tabler/icons-react';
 import { basename, dirname, extname } from '@tauri-apps/api/path';
 import { Command } from '@tauri-apps/plugin-shell';
 import { useState } from 'react';
-import { audioFormats, compressionPresets, encodingEffort, imageFormats, inputFileTypes, operations, videoFormats, videoQualityOptions } from '../../constants/mediaOptions';
+import { audioFormats, compressionPresets, encodingEffort, imageFormats, inputFileTypes, operations, videoFormats, outputQualityOptions } from '../../constants/mediaOptions';
 import { buildFfmpegArgs } from '../../services/ffmpegServices';
 import { calculateEta } from '../../utils/calculateEta';
 import { extractProgress } from '../../utils/extractProgress';
@@ -26,6 +26,7 @@ import { getDuration } from '../../utils/getDuration';
 import { getInputFileType } from '../../utils/getInputFileType';
 import { getOutputFileName } from '../../utils/getOutputFileName';
 import { selectInputFile } from '../../utils/selectInputFile';
+import { buildMagickArgs } from '../../services/magickServices';
 
 export default function HomePage() {
     const [inputPath, setInputPath] = useState<string | null>(null);
@@ -91,23 +92,43 @@ export default function HomePage() {
             operation === 'reencode' ? endName = 'reencoded' : endName = operation + 'ed';
 
             // Generate a unique output path using the utility function to prevent file collision
-            const outputPath = await getOutputFileName(inputPath, parentDir, `_${endName}`);
+            const outputPath = await getOutputFileName(inputPath, parentDir, `_${endName}`, outputFormat);
 
-            let args: string[] = buildFfmpegArgs({
-                inputPath,
-                outputPath,
-                operation,
-                outputFormat,
-                fileType: inputFileType,
-                compressionMode,
-                preset,
-                crf: Number(crf)
-            });
+            let args: string[] = [];
+            let command: Command<string>;
+            if (inputFileType === 'image') {
+                console.log('Calling buildMagickArgs')
+
+                args = buildMagickArgs({
+                    inputPath,
+                    outputPath,
+                    operation,
+                    outputFormat,
+                    fileType: inputFileType,
+                    compressionMode,
+                    quality: Number(crf)
+                });
+
+                command = Command.sidecar('binaries/magick', args);
+            } else {
+                console.log('Calling buildFfmpegArgs')
+
+                args = buildFfmpegArgs({
+                    inputPath,
+                    outputPath,
+                    operation,
+                    outputFormat,
+                    fileType: inputFileType,
+                    compressionMode,
+                    preset,
+                    crf: Number(crf)
+                });
+
+                command = Command.sidecar('binaries/ffmpeg', args);
+            }
 
             console.log('Running operation:', { inputPath, operation, outputFormat, compressionMode, preset, crf });
             console.log('Executing FFmpeg with args:', args);
-
-            const command = Command.sidecar('binaries/ffmpeg', args);
 
             command.stderr.on('data', (line) => {
                 console.log('FFmpeg stderr:', line);
@@ -225,8 +246,7 @@ export default function HomePage() {
                                 audioFormats.filter(f => f !== fileExt) :
                                 inputFileType === 'video' ?
                                     videoFormats.filter(f => f !== fileExt) :
-                                    // Filter out 'webp' for images since the binary doesn't support libwebp encoding
-                                    imageFormats.filter(f => f !== fileExt && f !== 'webp')
+                                    imageFormats.filter(f => f !== fileExt)
                             }
                             value={outputFormat}
                             onChange={(val) => val && setOutputFormat(val)}
@@ -287,7 +307,7 @@ export default function HomePage() {
                                 </Tooltip>
                             </Group>
                         }
-                        data={videoQualityOptions}
+                        data={outputQualityOptions}
                         value={crf}
                         onChange={(val) => val && setCrf(val)}
                     />
@@ -302,6 +322,7 @@ export default function HomePage() {
                     color='blue'
                     onClick={handleRun}
                     disabled={!inputPath || isProcessing}
+                    loading={isProcessing}
                 >
                     {isProcessing ? 'Processing...' : 'Run Operation'}
                 </Button>
