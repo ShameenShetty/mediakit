@@ -71,7 +71,8 @@ export function AudioPage() {
                 suffix = 'extracted';
                 targetExt = 'm4a'; // Extract audio into standard m4a container
             } else if (operation === 'boost-shrink') {
-                suffix = 'volume';
+                if (Number(volumeMultiplier) > 1) suffix = 'volBoosted';
+                else suffix = 'volReduced';
             } else if (operation === 'mute') {
                 suffix = 'muted';
             }
