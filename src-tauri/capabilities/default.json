@@ -37,6 +37,16 @@
       ]
     },
     {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "binaries/magick",
+          "sidecar": true,
+          "args": true
+        }
+      ]
+    },
+    {
       "identifier": "fs:allow-exists",
       "allow": [
         "$HOME/**",
