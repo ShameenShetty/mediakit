@@ -122,10 +122,10 @@ export function ThumbnailPage() {
 
             console.log('Built thumbnail arguments - ', args);
 
-            const command = Command.sidecar('binaries/ffmpeg', args);
+            const command = Command.sidecar('binaries/mediaProcessor', args);
 
             command.stderr.on('data', (line) => {
-                console.log('FFmpeg stderr:', line);
+                console.log('MediaProcessor stderr:', line);
                 if (line.includes('time=')) {
                     const p = extractProgress(duration, line) || 0;
                     setProgress(p);

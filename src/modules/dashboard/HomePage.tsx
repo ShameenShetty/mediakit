@@ -18,7 +18,7 @@ import { basename, dirname, extname } from '@tauri-apps/api/path';
 import { Command } from '@tauri-apps/plugin-shell';
 import { useState } from 'react';
 import { audioFormats, compressionPresets, encodingEffort, imageFormats, inputFileTypes, operations, videoFormats, outputQualityOptions } from '../../constants/mediaOptions';
-import { buildFfmpegArgs } from '../../services/ffmpegServices';
+import { buildMediaArgs } from '../../services/mediaProcessorServices';
 import { calculateEta } from '../../utils/calculateEta';
 import { extractProgress } from '../../utils/extractProgress';
 import { extractSpeed } from '../../utils/extractSpeed';
@@ -26,7 +26,7 @@ import { getDuration } from '../../utils/getDuration';
 import { getInputFileType } from '../../utils/getInputFileType';
 import { getOutputFileName } from '../../utils/getOutputFileName';
 import { selectInputFile } from '../../utils/selectInputFile';
-import { buildMagickArgs } from '../../services/magickServices';
+import { buildImageArgs } from '../../services/imageProcessorServices';
 
 export default function HomePage() {
     const [inputPath, setInputPath] = useState<string | null>(null);
@@ -97,9 +97,9 @@ export default function HomePage() {
             let args: string[] = [];
             let command: Command<string>;
             if (inputFileType === 'image') {
-                console.log('Calling buildMagickArgs')
+                console.log('Calling buildImageArgs')
 
-                args = buildMagickArgs({
+                args = buildImageArgs({
                     inputPath,
                     outputPath,
                     operation,
@@ -109,11 +109,11 @@ export default function HomePage() {
                     quality: Number(crf)
                 });
 
-                command = Command.sidecar('binaries/magick', args);
+                command = Command.sidecar('binaries/imageProcessor', args);
             } else {
-                console.log('Calling buildFfmpegArgs')
+                console.log('Calling buildMediaArgs')
 
-                args = buildFfmpegArgs({
+                args = buildMediaArgs({
                     inputPath,
                     outputPath,
                     operation,
@@ -124,14 +124,14 @@ export default function HomePage() {
                     crf: Number(crf)
                 });
 
-                command = Command.sidecar('binaries/ffmpeg', args);
+                command = Command.sidecar('binaries/mediaProcessor', args);
             }
 
             console.log('Running operation:', { inputPath, operation, outputFormat, compressionMode, preset, crf });
-            console.log('Executing FFmpeg with args:', args);
+            console.log('Executing with args:', args);
 
             command.stderr.on('data', (line) => {
-                console.log('FFmpeg stderr:', line);
+                console.log('MediaProcessor stderr:', line);
                 if (line.includes('time=')) {
                     const p = extractProgress(duration, line) || 0;
                     setProgress(p);

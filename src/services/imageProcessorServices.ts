@@ -1,6 +1,6 @@
 import { inputFileTypes } from '../constants/mediaOptions';
 
-export interface BuildMagickArgsOptions {
+export interface buildImageArgsOptions {
     inputPath: string;
     outputPath: string;
     operation: string;
@@ -10,7 +10,7 @@ export interface BuildMagickArgsOptions {
     quality: number;
 }
 
-export const buildMagickArgs = (options: BuildMagickArgsOptions): string[] => {
+export const buildImageArgs = (options: buildImageArgsOptions): string[] => {
     const { inputPath, outputPath, operation, outputFormat, compressionMode, quality } = options;
 
     // ImageMagick CLI structure begins with the input path

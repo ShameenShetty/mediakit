@@ -11,7 +11,7 @@ export interface BuildArgsOptions {
     crf: number;
 }
 
-export const buildFfmpegArgs = (options: BuildArgsOptions): string[] => {
+export const buildMediaArgs = (options: BuildArgsOptions): string[] => {
     const { inputPath, outputPath, operation, outputFormat, fileType, compressionMode, preset, crf } = options;
     let args: string[] = ['-i', inputPath];
 
