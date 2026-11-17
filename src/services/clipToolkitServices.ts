@@ -15,7 +15,8 @@ export const buildClipArgs = (options: ClipBuildArgsOptions): string[] => {
         '-ss', startTime.toString(),
         '-i', inputPath,
         '-t', duration.toString(),
-        '-c', 'copy', // Fast stream copy without re-encoding
+        '-c', 'copy',                       // Fast stream copy without re-encoding
+        '-avoid_negative_ts', 'make_zero',  // Fixes initial player offset bugs in native media players
         outputPath
     ];
 };
