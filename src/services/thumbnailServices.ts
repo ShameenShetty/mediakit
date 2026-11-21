@@ -53,15 +53,15 @@ export const buildThumbnailArgs = (options: ThumbnailBuildArgsOptions): string[]
                     outputPath
                 ];
             } else {
-                // Attach picture stream for M4A/other formats
+                // Corrected attachment arguments for M4A/other audio formats
                 args = [
                     '-y',
                     '-i', inputPath,
                     '-i', imagePath,
                     '-map', '0:a',
-                    '-map', '1:v',
-                    '-c:a', 'copy',
-                    '-c:v', 'mjpeg',
+                    '-map', '1',
+                    '-c', 'copy',
+                    '-disposition:v:0', 'attached_pic',
                     outputPath
                 ];
             }
