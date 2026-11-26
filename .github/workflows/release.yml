@@ -1,0 +1,90 @@
+name: "Publish Release"
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish-release:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: "macos-latest"
+            args: ""
+          - platform: "windows-latest"
+            args: ""
+          - platform: "ubuntu-22.04"
+            args: ""
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enable Corepack (for pnpm)
+        run: corepack enable
+      
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Linux dependencies (Ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Download Sidecar Binaries
+        shell: bash
+        run: |
+          mkdir -p src-tauri/binaries
+          
+          if [ "${{ matrix.platform }}" == "windows-latest" ]; then
+            curl -L -o src-tauri/binaries/mediaProcess-x86_64-pc-windows-msvc.exe https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcess-x86_64-pc-windows-msvc.exe
+            curl -L -o src-tauri/binaries/mediaProcessProbe-x86_64-pc-windows-msvc.exe https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessProbe-x86_64-pc-windows-msvc.exe
+          elif [ "${{ matrix.platform }}" == "macos-latest" ]; then
+            curl -L -o src-tauri/binaries/imageProcessor-aarch64-apple-darwin https://github.com/ShameenShetty/MediaKit/releases/download/binaries/imageProcessor-aarch64-apple-darwin
+            curl -L -o src-tauri/binaries/mediaProcessor-aarch64-apple-darwin https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessor-aarch64-apple-darwin
+            curl -L -o src-tauri/binaries/mediaProcessProbe-aarch64-apple-darwin https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessProbe-aarch64-apple-darwin
+            chmod +x src-tauri/binaries/*-aarch64-apple-darwin
+          elif [ "${{ matrix.platform }}" == "ubuntu-22.04" ]; then
+            curl -L -o src-tauri/binaries/mediaProcess-x86_64-unknown-linux-gnu https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcess-x86_64-unknown-linux-gnu
+            curl -L -o src-tauri/binaries/mediaProcessProbe-x86_64-unknown-linux-gnu https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessProbe-x86_64-unknown-linux-gnu
+            chmod +x src-tauri/binaries/*-x86_64-unknown-linux-gnu
+          fi
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      - name: Build Tauri App & Publish Release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: "v__VERSION__"
+          releaseName: "MediaKit v__VERSION__"
+          releaseBody: "Automated release for MediaKit."
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.args }}
