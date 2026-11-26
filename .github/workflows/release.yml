@@ -55,50 +55,64 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
-      - name: Download Sidecar Binaries
+      - name: Download and rename Tauri sidecar binaries
         shell: bash
         run: |
+          set -e
           mkdir -p src-tauri/binaries
+          HOST="github.com"
+          CURL_OPTS="-fL --retry 3 --retry-delay 5 --http1.1"
+
+          dl() {
+            curl $CURL_OPTS -o "$1" "https://${HOST}/$2/releases/download/$3/$4"
+          }
 
           if [ "${{ matrix.platform }}" == "windows-latest" ]; then
-            # 1. Download FFmpeg & FFprobe from BtbN builds for Windows
-            curl -fL -o ffmpeg.zip https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip
+            # 1. FFmpeg & FFprobe (Windows x86_64)
+            dl ffmpeg.zip "BtbN/FFmpeg-Builds" "latest" "ffmpeg-master-latest-win64-gpl.zip"
             7z x ffmpeg.zip -offmpeg_extracted
             find ffmpeg_extracted -name "ffmpeg.exe" -type f -exec mv {} src-tauri/binaries/mediaProcessor-x86_64-pc-windows-msvc.exe \;
             find ffmpeg_extracted -name "ffprobe.exe" -type f -exec mv {} src-tauri/binaries/mediaProcessProbe-x86_64-pc-windows-msvc.exe \;
             rm -rf ffmpeg.zip ffmpeg_extracted
 
-            # 2. Download ImageMagick for Windows
-            curl -fL -o imagemagick.7z https://github.com/ImageMagick/ImageMagick/releases/download/7.1.2-36/ImageMagick-7.1.2-36-portable-Q16-HDRI-x64-static.7z
+            # 2. ImageMagick (Windows x86_64)
+            dl imagemagick.7z "ImageMagick/ImageMagick" "7.1.2-36" "ImageMagick-7.1.2-36-portable-Q16-HDRI-x64.7z"
             7z x imagemagick.7z -oimagemagick_extracted
             find imagemagick_extracted -name "magick.exe" -type f -exec mv {} src-tauri/binaries/imageProcessor-x86_64-pc-windows-msvc.exe \;
             rm -rf imagemagick.7z imagemagick_extracted
 
-          elif [ "${{ matrix.platform }}" == "macos-latest" ]; then
-            curl -fL -o src-tauri/binaries/mediaProcessor-aarch64-apple-darwin https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessor-aarch64-apple-darwin
-            curl -fL -o src-tauri/binaries/mediaProcessProbe-aarch64-apple-darwin https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessProbe-aarch64-apple-darwin
+          elif [ "${{ matrix.platform }}" == "ubuntu-latest" ]; then
+            # 1. FFmpeg & FFprobe (Linux x86_64)
+            dl ffmpeg.tar.xz "BtbN/FFmpeg-Builds" "latest" "ffmpeg-master-latest-linux64-gpl.tar.xz"
+            mkdir -p ffmpeg_extracted
+            tar -xf ffmpeg.tar.xz -C ffmpeg_extracted
+            find ffmpeg_extracted -name "ffmpeg" -type f -exec mv {} src-tauri/binaries/mediaProcessor-x86_64-unknown-linux-gnu \;
+            find ffmpeg_extracted -name "ffprobe" -type f -exec mv {} src-tauri/binaries/mediaProcessProbe-x86_64-unknown-linux-gnu \;
+            rm -rf ffmpeg.tar.xz ffmpeg_extracted
 
-            curl -fL -o imagemagick.tar.xz https://github.com/ImageMagick/ImageMagick/releases/download/7.1.2-36/ImageMagick-7.1.2-36-portable-Q16-HDRI-macos-arm64.tar.xz
+            # 2. ImageMagick AppImage (Single standalone executable)
+            dl src-tauri/binaries/imageProcessor-x86_64-unknown-linux-gnu "ImageMagick/ImageMagick" "7.1.2-36" "ImageMagick-7.1.2-36-x86_64.AppImage"
+
+            chmod +x src-tauri/binaries/mediaProcessor-x86_64-unknown-linux-gnu \
+                     src-tauri/binaries/mediaProcessProbe-x86_64-unknown-linux-gnu \
+                     src-tauri/binaries/imageProcessor-x86_64-unknown-linux-gnu
+
+          elif [ "${{ matrix.platform }}" == "macos-latest" ]; then
+            # 1. FFmpeg & FFprobe (macOS arm64)
+            dl src-tauri/binaries/mediaProcessor-aarch64-apple-darwin "descriptinc/ffmpeg-ffprobe-static" "b6.1.2-rc.1" "ffmpeg-darwin-arm64"
+            dl src-tauri/binaries/mediaProcessProbe-aarch64-apple-darwin "descriptinc/ffmpeg-ffprobe-static" "b6.1.2-rc.1" "ffprobe-darwin-arm64"
+
+            # 2. ImageMagick (macOS arm64 portable)
+            dl imagemagick.tar.xz "ImageMagick/ImageMagick" "7.1.2-36" "ImageMagick-7.1.2-36-portable-Q16-HDRI-macos-arm64.tar.xz"
             mkdir -p imagemagick_extracted
             tar -xf imagemagick.tar.xz -C imagemagick_extracted
             find imagemagick_extracted -name "magick" -type f -exec mv {} src-tauri/binaries/imageProcessor-aarch64-apple-darwin \;
             rm -rf imagemagick.tar.xz imagemagick_extracted
 
-            chmod +x src-tauri/binaries/*-aarch64-apple-darwin
-
-          elif [ "${{ matrix.platform }}" == "ubuntu-22.04" ]; then
-            curl -fL -o src-tauri/binaries/mediaProcessor-x86_64-unknown-linux-gnu https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessor-x86_64-unknown-linux-gnu
-            curl -fL -o src-tauri/binaries/mediaProcessProbe-x86_64-unknown-linux-gnu https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessProbe-x86_64-unknown-linux-gnu
-
-            curl -fL -o imagemagick.tar.xz https://github.com/ImageMagick/ImageMagick/releases/download/7.1.2-36/ImageMagick-7.1.2-36-portable-Q16-HDRI-linux-x64.tar.xz
-            mkdir -p imagemagick_extracted
-            tar -xf imagemagick.tar.xz -C imagemagick_extracted
-            find imagemagick_extracted -name "magick" -type f -exec mv {} src-tauri/binaries/imageProcessor-x86_64-unknown-linux-gnu \;
-            rm -rf imagemagick.tar.xz imagemagick_extracted
-
-            chmod +x src-tauri/binaries/*-x86_64-unknown-linux-gnu
+            chmod +x src-tauri/binaries/mediaProcessor-aarch64-apple-darwin \
+                     src-tauri/binaries/mediaProcessProbe-aarch64-apple-darwin \
+                     src-tauri/binaries/imageProcessor-aarch64-apple-darwin
           fi
-
 
       - name: Install frontend dependencies
         run: pnpm install
