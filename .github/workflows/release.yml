@@ -59,20 +59,41 @@ jobs:
         shell: bash
         run: |
           mkdir -p src-tauri/binaries
-          
+
           if [ "${{ matrix.platform }}" == "windows-latest" ]; then
-            curl -L -o src-tauri/binaries/mediaProcessor-x86_64-pc-windows-msvc.exe https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessor-x86_64-pc-windows-msvc.exe
-            curl -L -o src-tauri/binaries/mediaProcessProbe-x86_64-pc-windows-msvc.exe https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessProbe-x86_64-pc-windows-msvc.exe
+            curl -fL -o src-tauri/binaries/mediaProcessor-x86_64-pc-windows-msvc.exe https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessor-x86_64-pc-windows-msvc.exe
+            curl -fL -o src-tauri/binaries/mediaProcessProbe-x86_64-pc-windows-msvc.exe https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessProbe-x86_64-pc-windows-msvc.exe
+
+            curl -fL -o imagemagick.7z https://github.com/ImageMagick/ImageMagick/releases/download/7.1.2-36/ImageMagick-7.1.2-36-portable-Q16-HDRI-x64-static.7z
+            7z x imagemagick.7z -oimagemagick_extracted
+            find imagemagick_extracted -name "magick.exe" -type f -exec mv {} src-tauri/binaries/imageProcessor-x86_64-pc-windows-msvc.exe \;
+            rm -rf imagemagick.7z imagemagick_extracted
+
           elif [ "${{ matrix.platform }}" == "macos-latest" ]; then
-            curl -L -o src-tauri/binaries/imageProcessor-aarch64-apple-darwin https://github.com/ShameenShetty/MediaKit/releases/download/binaries/imageProcessor-aarch64-apple-darwin
-            curl -L -o src-tauri/binaries/mediaProcessor-aarch64-apple-darwin https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessor-aarch64-apple-darwin
-            curl -L -o src-tauri/binaries/mediaProcessProbe-aarch64-apple-darwin https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessProbe-aarch64-apple-darwin
+            curl -fL -o src-tauri/binaries/mediaProcessor-aarch64-apple-darwin https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessor-aarch64-apple-darwin
+            curl -fL -o src-tauri/binaries/mediaProcessProbe-aarch64-apple-darwin https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessProbe-aarch64-apple-darwin
+
+            curl -fL -o imagemagick.tar.xz https://github.com/ImageMagick/ImageMagick/releases/download/7.1.2-36/ImageMagick-7.1.2-36-portable-Q16-HDRI-macos-arm64.tar.xz
+            mkdir -p imagemagick_extracted
+            tar -xf imagemagick.tar.xz -C imagemagick_extracted
+            find imagemagick_extracted -name "magick" -type f -exec mv {} src-tauri/binaries/imageProcessor-aarch64-apple-darwin \;
+            rm -rf imagemagick.tar.xz imagemagick_extracted
+
             chmod +x src-tauri/binaries/*-aarch64-apple-darwin
+
           elif [ "${{ matrix.platform }}" == "ubuntu-22.04" ]; then
-            curl -L -o src-tauri/binaries/mediaProcessor-x86_64-unknown-linux-gnu https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessor-x86_64-unknown-linux-gnu
-            curl -L -o src-tauri/binaries/mediaProcessProbe-x86_64-unknown-linux-gnu https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessProbe-x86_64-unknown-linux-gnu
+            curl -fL -o src-tauri/binaries/mediaProcessor-x86_64-unknown-linux-gnu https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessor-x86_64-unknown-linux-gnu
+            curl -fL -o src-tauri/binaries/mediaProcessProbe-x86_64-unknown-linux-gnu https://github.com/ShameenShetty/MediaKit/releases/download/binaries/mediaProcessProbe-x86_64-unknown-linux-gnu
+
+            curl -fL -o imagemagick.tar.xz https://github.com/ImageMagick/ImageMagick/releases/download/7.1.2-36/ImageMagick-7.1.2-36-portable-Q16-HDRI-linux-x64.tar.xz
+            mkdir -p imagemagick_extracted
+            tar -xf imagemagick.tar.xz -C imagemagick_extracted
+            find imagemagick_extracted -name "magick" -type f -exec mv {} src-tauri/binaries/imageProcessor-x86_64-unknown-linux-gnu \;
+            rm -rf imagemagick.tar.xz imagemagick_extracted
+
             chmod +x src-tauri/binaries/*-x86_64-unknown-linux-gnu
           fi
+
 
       - name: Install frontend dependencies
         run: pnpm install
