@@ -33,7 +33,7 @@
     ],
     "externalBin": [
       "binaries/mediaProcessor",
-      "binaries/ffprobe",
+      "binaries/mediaProcessProbe",
       "binaries/imageProcessor"
     ]
   }

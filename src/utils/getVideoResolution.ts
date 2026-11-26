@@ -3,7 +3,7 @@ import { Command } from '@tauri-apps/plugin-shell'
 export const getVideoResolution = async (inputPath: string): Promise<string> => {
     console.log('Getting video resolution')
 
-    const command = Command.sidecar('binaries/ffprobe', [
+    const command = Command.sidecar('binaries/mediaProcessProbe', [
         '-v', 'error',
         '-select_streams', 'v:0',
         '-show_entries',
@@ -19,7 +19,7 @@ export const getVideoResolution = async (inputPath: string): Promise<string> => 
         console.log(`Video resolution is ${resolution}s`);
         return resolution;
     } else {
-        console.error('ffprobe failed with exit code:', output.code);
+        console.error('mediaProcessProbe failed with exit code:', output.code);
         return 'N/A';
     }
 }

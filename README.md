@@ -117,3 +117,21 @@ At the heart of MediaKit is the **Home Workspace**, designed around a frictionle
 - **Binaries:** Custom-branded local sidecars (`mediaProcessor` powered by FFmpeg, `imageProcessor` powered by ImageMagick)
 
 ---
+
+## ⚙️ How to Run & Troubleshooting
+
+Because MediaKit is distributed as an independent open-source utility without paid Apple/Microsoft developer certificates, your operating system may flag the first launch. Here is how to run it smoothly:
+
+### MacOS
+If macOS prompts that *"MediaKit can't be opened because it is from an unidentified developer"* or is damaged:
+1. Move `MediaKit.app` into your **Applications** folder.
+2. Open your terminal and strip the quarantine attribute applied by Gatekeeper:
+
+   ```bash
+   sudo xattr -d com.apple.quarantine /Applications/MediaKit.app
+   ```
+
+### Windows
+If Windows Defender SmartScreen prevents the executable from starting (Windows protected your PC):
+1. Click on the "More info" link in the warning popup.
+2. Click the "Run anyway" button that appears at the bottom.
